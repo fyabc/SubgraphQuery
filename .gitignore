@@ -27,3 +27,10 @@
 *.exe
 *.out
 *.app
+
+# CMake directory
+build/
+
+# CLion Project Files
+.idea/
+
