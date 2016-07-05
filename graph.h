@@ -72,6 +72,9 @@ public:
     /// Show adjacent matrix.
     void showAdj(std::ostream& out = std::cout) const;
 
+    /// Get the degree distribution of the graph.
+    std::vector<std::unordered_set<std::size_t>> getDegreeDistribution() const;
+
     /// Get the connect component which contains vertex start.
     std::unordered_set<std::size_t> getConnectComponent(std::size_t start) const;
 
@@ -90,8 +93,10 @@ public:
     /// [NOTE]: the graph must be a tree, the default root is 0.
     std::vector<DecomposeTreeNode> treeDecompose(std::size_t root = 0) const;
 
-    /// (Large) Tree query with degree constraints.
-    mpz_class getSubgraphNumber_Tree_Degrees(const Graph& Q, const std::vector<std::size_t>& degrees, bool isHard) const;
+    /// (Large) Tree query with hard or soft degree constraints.
+    /// constraints[i] == -1 means vertex i doesn't have constraint.
+    mpz_class getSubgraphNumber_Tree_DegreesHard(const Graph& Q, const std::vector<int>& constraints) const;
+    mpz_class getSubgraphNumber_Tree_DegreesSoft(const Graph& Q, const std::vector<int>& constraints) const;
 
 private:
     std::size_t N;

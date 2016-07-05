@@ -147,12 +147,15 @@ vector<Graph::DecomposeTreeNode> Graph::treeDecompose(size_t root) const {
     auto index = 0;
     for (auto i = 0; i < 2 * N - 1; ++i) {
         auto& node = result[i];
+
+        // if node has only one vertex, it is a leaf.
+        // continue.
         if (node.vertices.size() <= 1) {
             node.activeChild = node.passiveChild = -1;
             continue;
         }
 
-        // else, choose an edge, remove it to split the tree.
+        // else, choose an edge which contains node.root, remove it to split the tree.
         // active child contains node.root.
         auto src = node.root;
         auto dst = *(Q.vertices[src].adj.begin());

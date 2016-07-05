@@ -221,3 +221,12 @@ unordered_set<size_t> Graph::getConnectComponent(size_t start) const {
     delete[] visited;
     return result;
 }
+
+vector<unordered_set<size_t>> Graph::getDegreeDistribution() const {
+    vector<unordered_set<size_t>> result(N, unordered_set<size_t>());
+
+    for (size_t i = 0; i < N; ++i)
+        result[vertices[i].degree].insert(i);
+
+    return result;
+}
