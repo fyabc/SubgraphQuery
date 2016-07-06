@@ -178,6 +178,9 @@ mpz_class Graph::getSubgraphNumber_Tree(const Graph& Q, int sampleTimes) const {
     mpz_class result(0);
     auto k = Q.size();
 
+    if (Q.isStar())
+        return getSubgraphNumber_Star(Q);
+
     // decompose Q into vertices, create a decompose tree.
     auto decompose = Q.treeDecompose();
 
@@ -227,4 +230,14 @@ mpz_class Graph::getSubgraphNumber_Tree(const Graph& Q, int sampleTimes) const {
     }
 
     return result * power(k, k) / fac(k) / sampleTimes;
+}
+
+mpz_class Graph::getSubgraphNumber_FullTree(const vector<size_t> &branches, int sampleTimes) const {
+    mpz_class result(0);
+
+    for (auto i = 0; i < sampleTimes; ++i) {
+
+    }
+
+    return result;
 }

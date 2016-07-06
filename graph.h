@@ -59,19 +59,27 @@ public:
     static std::unique_ptr<Graph> createStar(std::size_t n);
     static std::unique_ptr<Graph> createCycle(std::size_t n);
     static std::unique_ptr<Graph> createTree(std::size_t depth, std::size_t width);
-    static std::unique_ptr<Graph> createTreeH(std::initializer_list<std::size_t> widths);
+    static std::unique_ptr<Graph> createTreeH(const std::vector<std::size_t>& widths);
 
     std::size_t size() const { return N; }
     std::size_t degree(std::size_t i) const { return vertices[i].degree; }
     std::size_t edgeNum() const;
+    std::size_t maxDegree() const;
+
     const std::unordered_set<std::size_t>& getAdj(std::size_t i) const { return vertices[i].adj; }
     const std::vector<Vertex>& getVertices() const { return vertices; }
     
     void addEdge(std::size_t src, std::size_t dst);
     void removeEdge(std::size_t src, std::size_t dst);
 
+    bool haveEdge(std::size_t src, std::size_t dst) const;
+
+    /// Test if G is a star.
+    bool isStar(std::size_t root = 0) const;
+
     /// Show adjacent matrix.
     void showAdj(std::ostream& out = std::cout) const;
+    void showGraphInfo(std::ostream& out = std::cout) const;
 
     /// Get the degree distribution of the graph.
     std::vector<std::unordered_set<std::size_t>> getDegreeDistribution() const;
@@ -86,9 +94,20 @@ public:
     /// (This method is used for checking results of other methods)
     mpz_class getSubgraphNumber_BF(const Graph& Q, int sampleTimes = 10000) const;
 
-    /// Tree query using paper [30].
+    /// Star query.
+    mpz_class getSubgraphNumber_Star(const Graph& Q) const;
+
+    /// Tree query using color coding and dynamic programming in paper [30].
     /// Q must be a tree. The root of Q will be set to 0 by default.
     mpz_class getSubgraphNumber_Tree(const Graph& Q, int sampleTimes = 1000) const;
+
+    /// Full tree query.
+    /// Using color coding.
+    mpz_class getSubgraphNumber_FullTree(const std::vector<std::size_t>& branches,
+                                         int sampleTimes = 1000) const;
+
+    /// 2-depth full tree query.
+    mpz_class getSubgraphNumber_2dFullTree(std::size_t b1, std::size_t b2, int sampleTimes = 1000) const;
 
     /// Get the tree decompose of graph.
     /// [NOTE]: the graph must be a tree, the default root is 0.

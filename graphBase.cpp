@@ -41,6 +41,16 @@ size_t Graph::edgeNum() const {
     return result / 2;
 }
 
+size_t Graph::maxDegree() const {
+    size_t result = 0;
+
+    for (size_t i = 0; i < N; ++i)
+        if (vertices[i].degree > result)
+            result = vertices[i].degree;
+
+    return result;
+}
+
 unique_ptr<Graph> Graph::fromFile(const string& fileName) {
     size_t n = 10;
     double p = 0.0;
@@ -132,7 +142,7 @@ std::unique_ptr<Graph> Graph::createTree(std::size_t depth, std::size_t width) {
     return result;
 }
 
-std::unique_ptr<Graph> Graph::createTreeH(std::initializer_list<std::size_t> widths) {
+std::unique_ptr<Graph> Graph::createTreeH(const std::vector<std::size_t>& widths) {
     std::size_t temp = 1;
     auto depth = widths.size();
     auto n = new size_t[depth + 1];
@@ -171,6 +181,24 @@ void Graph::removeEdge(std::size_t src, std::size_t dst) {
     vertices[dst].removeEdge(src);
 }
 
+bool Graph::haveEdge(std::size_t src, std::size_t dst) const {
+    return vertices[src].adj.find(dst) != vertices[src].adj.end();
+}
+
+bool Graph::isStar(size_t root) const {
+    if (vertices[root].degree != N - 1)
+        return false;
+
+    for (size_t i = 0; i < N; ++i) {
+        if (i == root)
+            continue;
+        if (vertices[i].degree != 1)
+            return false;
+    }
+
+    return true;
+}
+
 void Graph::showAdj(ostream& out) const {
     out << "\t#";
     for (auto i = 0; i < N; ++i)
@@ -193,6 +221,20 @@ void Graph::showAdj(ostream& out) const {
 
         out << endl;
     }
+}
+
+void Graph::showGraphInfo(std::ostream &out) const {
+    out <<
+    "Graph:\n"
+    "N = " << N << ", E = " << edgeNum() << "\n"
+    "Max degree = " << maxDegree() << "\n"
+    "\n"
+    "Degree distribution:\n";
+    auto distrib = getDegreeDistribution();
+    for (auto i = N - 1; i > 0; --i)
+        if (distrib[i].size() != 0)
+            out << i << "\t" << distrib[i].size() << "\n";
+    out << flush;
 }
 
 unordered_set<size_t> Graph::getConnectComponent(size_t start) const {
