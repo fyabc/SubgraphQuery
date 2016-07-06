@@ -3,19 +3,11 @@
 //
 
 #include "graph.h"
+#include "utils.h"
 
 using namespace std;
 
 namespace {
-
-inline mpz_class permute(size_t n, size_t k) {
-    mpz_class result(1);
-
-    for (size_t i = 0; i < k; ++i)
-        result *= n - i;
-
-    return result;
-}
 
 } // anonymous namespace
 

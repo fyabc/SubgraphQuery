@@ -1,4 +1,9 @@
+//
+// Created by fanyang on 7/1/2016.
+//
+
 #include "graph.h"
+#include "utils.h"
 
 #include <fstream>
 #include <queue>
@@ -12,24 +17,6 @@ using namespace std;
 namespace {
 
 size_t *all = nullptr;
-
-inline mpz_class fac(size_t n) {
-    mpz_class result(1);
-
-    for (size_t i = 1; i <= n; ++i)
-        result *= i;
-
-    return result;
-}
-
-inline mpz_class power(int base, size_t exp) {
-    mpz_class result(1);
-
-    for (size_t i = 1; i <= exp; ++i)
-        result *= base;
-
-    return result;
-}
 
 struct Pair_IS_Hasher {
     inline size_t operator() (const pair<int, size_t>& p) const {

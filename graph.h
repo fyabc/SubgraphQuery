@@ -109,6 +109,9 @@ public:
     /// 2-depth full tree query.
     mpz_class getSubgraphNumber_2dFullTree(std::size_t b1, std::size_t b2, int sampleTimes = 1000) const;
 
+    /// 2-depth full tree query (ignore conflicts).
+    mpz_class getSubgraphNumber_2dFullTree_ignore(std::size_t b1, std::size_t b2) const;
+
     /// Get the tree decompose of graph.
     /// [NOTE]: the graph must be a tree, the default root is 0.
     std::vector<DecomposeTreeNode> treeDecompose(std::size_t root = 0) const;
