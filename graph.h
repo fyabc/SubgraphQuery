@@ -5,6 +5,7 @@
 #ifndef SUBGRAPHQUERY_GRAPH_H
 #define SUBGRAPHQUERY_GRAPH_H
 
+#include <cstddef>
 #include <gmpxx.h>
 #include <memory>
 #include <string>

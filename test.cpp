@@ -6,15 +6,16 @@
 #include "utils.h"
 
 #include <cstdio>
+#include <ctime>
 
 using namespace std;
 
 int main() {
     srand((unsigned)time(nullptr));
 
-    auto pG = Graph::fromFile("data/pl_1000000_2.5.txt");
+    auto pG = Graph::fromFile("D:/Paper/data/pl_10000_2.8.txt");
 //    auto pG = Graph::createTree(1, 100);
-    auto pQ = Graph::createTreeH({2, 1});
+    auto pQ = Graph::createTreeH({1, 2, 1});
 
     auto confidence = 0.1;
     auto error = 0.2;

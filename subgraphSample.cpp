@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <random>
+#include <cstdlib>
 
 using namespace std;
 
@@ -26,7 +27,7 @@ inline void randomSample(size_t N, size_t qSize, size_t *result) {
     size_t rIndex;
 
     for (size_t i = 0; i < qSize; ++i) {
-        rIndex = random() % (N - i);
+        rIndex = rand() % (N - i);
         result[i] = all[rIndex];
 
         iter_swap(all + rIndex, all + N - i - 1);

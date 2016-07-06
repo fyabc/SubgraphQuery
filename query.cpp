@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <ctime>
 #include <getopt.h>
-#include <omp.h>
 
 using namespace std;
 
