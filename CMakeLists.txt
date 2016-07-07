@@ -16,3 +16,5 @@ add_executable(testGraph test.cpp utils.h)
 target_link_libraries(graph -lgmpxx -lgmp)
 target_link_libraries(query graph -lgmpxx -lgmp)
 target_link_libraries(testGraph graph -lgmpxx -lgmp)
+
+add_subdirectory(tests)

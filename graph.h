@@ -97,6 +97,10 @@ public:
     /// Star query.
     mpz_class getSubgraphNumber_Star(const Graph& Q) const;
 
+    /// Star query with degree constraints.
+    mpz_class getSubgraphNumber_Star_DegreesHard(const Graph& Q, std::size_t constraint) const;
+    mpz_class getSubgraphNumber_Star_DegreesSoft(const Graph& Q, std::size_t constraint) const;
+
     /// Tree query using color coding and dynamic programming in paper [30].
     /// Q must be a tree. The root of Q will be set to 0 by default.
     mpz_class getSubgraphNumber_Tree(const Graph& Q, int sampleTimes = 1000) const;

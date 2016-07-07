@@ -61,4 +61,10 @@ inline bool nextCombination(std::size_t n, std::size_t k, std::size_t* comb) {
     return true;
 }
 
+inline void expRep(const mpz_class& val, std::ostream& out = std::cout) {
+    auto rep = val.get_str(10);
+    auto exp = int(rep.size() - 1);
+    out << rep[0] << '.' << rep.substr(1, (std::size_t)std::min(2, exp)) << "E" << exp;
+}
+
 #endif //SUBGRAPHQUERY_UTILS_H
