@@ -14,7 +14,9 @@ using namespace std;
 int main(int argc, char* argv[]) {
     srand((unsigned)time(nullptr));
 
-    string path = "/home/fanyang/Paper";
+    string path =
+#include "config.txt"
+ ;
 
     string N = "1000000";
     string p = "2.8";
@@ -36,14 +38,13 @@ int main(int argc, char* argv[]) {
 //    auto pG = Graph::createTree(1, 100);
     auto pQ = Graph::createTreeH(branches);
 
-    auto confidence = 0.1;
-    auto error = 0.2;
-
-//    auto sampleTime = getSampleTime(pQ->size(), confidence, error);
-    auto sampleTime = pQ->size() * 4;
-
     auto resultIC = pG->getSubgraphNumber_2dFullTree_ignore(b1, b2);
     cout << "Ignore conflict: " << resultIC << " " << resultIC.get_str(10).size() << endl;
+
+    auto confidence = 0.1;
+    auto error = 0.2;
+//    auto sampleTime = getSampleTime(pQ->size(), confidence, error);
+    auto sampleTime = pQ->size() * 4;
 
 //    mpz_class sum(0);
 //    auto timeBefore = clock();

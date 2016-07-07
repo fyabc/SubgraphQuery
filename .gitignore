@@ -34,3 +34,5 @@ build/
 # CLion Project Files
 .idea/
 
+# Path config
+config.txt
