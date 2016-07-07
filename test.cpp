@@ -41,9 +41,6 @@ int main(int argc, char* argv[]) {
     auto resultIC = pG->getSubgraphNumber_2dFullTree_ignore(b1, b2);
     cout << "Ignore conflict: " << resultIC << " " << resultIC.get_str(10).size() << endl;
 
-    auto confidence = 0.1;
-    auto error = 0.2;
-//    auto sampleTime = getSampleTime(pQ->size(), confidence, error);
     auto sampleTime = pQ->size() * 4;
 
 //    mpz_class sum(0);

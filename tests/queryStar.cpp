@@ -5,22 +5,19 @@
 #include "../graph.h"
 #include "../utils.h"
 
-#include <ctime>
 #include <fstream>
 
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    srand((unsigned)time(nullptr));
 
     string path =
 #include "../config.txt"
     ;
 
-    string N = "1000000";
+    string N = "10000";
     string p = "2.2";
-    size_t k = 100;
-    size_t constraint = 1;
+    size_t constraint = 2;
     char buf[22];
     sprintf(buf, "%u", constraint);
 
@@ -28,7 +25,7 @@ int main(int argc, char* argv[]) {
 
     ofstream outFile(path + "/result/star_pl_" + N + "_" + p + "_" + buf + ".txt");
 
-    for (k = 1; k <= pG->size(); ++k) {
+    for (size_t k = 1; k <= pG->size(); ++k) {
         if (k % 100 == 0)
             cout << k << endl;
 
