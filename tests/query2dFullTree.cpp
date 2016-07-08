@@ -18,10 +18,10 @@ int main(int argc, char* argv[]) {
 #include "../config.txt"
     ;
 
-    string N = "10000";
+    string N = "100000";
     string p = "2.2";
     auto b1MaxStr = "3";
-    auto b2MaxStr = "13";
+    auto b2MaxStr = "50";
     size_t b1Max = (size_t)atoi(b1MaxStr);
     size_t b2Max = (size_t)atoi(b2MaxStr);
     size_t threshold = 11;
@@ -56,6 +56,8 @@ int main(int argc, char* argv[]) {
             outFile << endl;
         }
     }
+
+    outFile.close();
 
     return 0;
 }

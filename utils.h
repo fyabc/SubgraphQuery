@@ -8,6 +8,7 @@
 #include <gmpxx.h>
 #include <cmath>
 #include <iostream>
+#include <unordered_map>
 
 inline std::size_t getSampleTime(std::size_t k, double confidence, double error) {
     return (std::size_t)(exp(k) * log(1 / confidence) / error / error);
@@ -31,14 +32,29 @@ inline mpz_class power(int base, std::size_t exp) {
     return result;
 }
 
+struct PairHash {
+    std::size_t operator() (const std::pair<std::size_t, std::size_t>& val) const {
+        return std::hash<std::size_t>()(val.first) ^ (std::hash<std::size_t>()(val.second) << 1);
+    }
+};
+
 inline mpz_class permute(std::size_t n, std::size_t k) {
+    using namespace std;
+    static unordered_map<pair<size_t, size_t>, mpz_class, PairHash> calculated;
+
     if (n < k)
         return mpz_class(0);
 
+    auto pResult = calculated.find(pair<size_t, size_t>(n, k));
+    if (pResult != calculated.end())
+        return pResult->second;
+
     mpz_class result(1);
 
-    for (std::size_t i = 0; i < k; ++i)
+    for (size_t i = 0; i < k; ++i)
         result *= n - i;
+
+    calculated[pair<size_t, size_t>(n, k)] = result;
 
     return result;
 }

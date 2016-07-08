@@ -60,6 +60,8 @@ public:
     static std::unique_ptr<Graph> createCycle(std::size_t n);
     static std::unique_ptr<Graph> createTree(std::size_t depth, std::size_t width);
     static std::unique_ptr<Graph> createTreeH(const std::vector<std::size_t>& widths);
+    static std::unique_ptr<Graph> createER(std::size_t n, std::size_t m);
+    void toFile(const std::string& fileName) const;
 
     std::size_t size() const { return N; }
     std::size_t degree(std::size_t i) const { return vertices[i].degree; }

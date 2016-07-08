@@ -30,6 +30,34 @@ inline void parseFileName(const string& fileName, size_t& n, double& p) {
     p = atof(realFileName.substr(secondUnderlineIndex + 1).c_str());
 }
 
+inline void randomSample_(size_t n, size_t k, size_t* result) {
+    auto all = new size_t[n];
+
+    for (size_t i = 0; i < n; ++i)
+        all[i] = i;
+
+    for (size_t i = 0; i < k; ++i) {
+        size_t rIndex = rand() % (n - i);
+        result[i] = all[rIndex];
+        iter_swap(all + rIndex, all + n - i - 1);
+    }
+
+    delete[] all;
+}
+
+inline pair<size_t, size_t> get_uv(size_t val, size_t n) {
+    --n;
+
+    pair<size_t, size_t> result(0, 0);
+    while (val >= n) {
+        ++result.first;
+        val -= n--;
+    }
+    result.second = result.first + 1 + val;
+
+    return result;
+};
+
 } // anonymous namespace
 
 size_t Graph::edgeNum() const {
@@ -169,6 +197,35 @@ std::unique_ptr<Graph> Graph::createTreeH(const std::vector<std::size_t>& widths
     delete[] n;
 
     return result;
+}
+
+std::unique_ptr<Graph> Graph::createER(std::size_t n, std::size_t m) {
+    auto result = unique_ptr<Graph>(new Graph(n));
+    auto samples = new size_t[m];
+
+
+    randomSample_(n * (n - 1) / 2, m, samples);
+    for (size_t i = 0; i < m; ++i) {
+        auto uv = get_uv(samples[i], n);
+        result->addEdge(uv.first, uv.second);
+    }
+
+    delete[] samples;
+    return result;
+}
+
+void Graph::toFile(const std::string &fileName) const {
+    ofstream outFile(fileName.c_str(), ofstream::out);
+
+    outFile << N << endl;
+    outFile << edgeNum() << endl;
+
+    for (size_t i = 0; i < N; ++i)
+        for (const auto& j: vertices[i].adj)
+            if (i <= j)
+                outFile << i << " " << j << endl;
+
+    outFile.close();
 }
 
 void Graph::addEdge(std::size_t src, std::size_t dst) {
