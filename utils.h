@@ -10,6 +10,10 @@
 #include <iostream>
 #include <unordered_map>
 
+inline std::size_t urand() {
+    return (std::size_t)rand();
+}
+
 inline std::size_t getSampleTime(std::size_t k, double confidence, double error) {
     return (std::size_t)(exp(k) * log(1 / confidence) / error / error);
 }
