@@ -14,9 +14,9 @@ int main(int argc, char* argv[]) {
 #include "../config.txt"
     ;
 
-    string N = "10000";
-    string p = "2.2";
-    string maxConstraintStr = "100";
+    string N = "100000";
+    string p = "2.8";
+    string maxConstraintStr = "20";
 
     size_t maxConstraint = (size_t)atoi(maxConstraintStr.c_str());
 
@@ -39,18 +39,14 @@ int main(int argc, char* argv[]) {
         outFileSrHl << k << "   \t";
         outFileSrSl << k << "   \t";
 
-        for (size_t constraint = 1; constraint < maxConstraint; ++constraint) {
-//            auto resultH = pG->getSubgraphNumber_Star_DegreesHard(*pQ, constraint, k - 1);
-//            expRep(resultH, outFileHard);
-//            outFileHard << " " << resultH << "  \t";
-
-            auto resultHrHl = pG->getSubgraphNumber_Star_All(k, constraint, true, k - 1, true);
+        for (size_t constraint = 1; constraint <= maxConstraint; ++constraint) {
+            auto resultHrHl = pG->getSubgraphNumber_Star_All(k, k - 1, true, constraint, true);
             outFileHrHl << resultHrHl << "  \t";
-            auto resultHrSl = pG->getSubgraphNumber_Star_All(k, constraint, true, k - 1, false);
+            auto resultHrSl = pG->getSubgraphNumber_Star_All(k, k - 1, true, constraint, false);
             outFileHrSl << resultHrSl << "  \t";
-            auto resultSrHl = pG->getSubgraphNumber_Star_All(k, constraint, false, k - 1, true);
+            auto resultSrHl = pG->getSubgraphNumber_Star_All(k, k - 1, false, constraint, true);
             outFileSrHl << resultSrHl << "  \t";
-            auto resultSrSl = pG->getSubgraphNumber_Star_All(k, constraint, false, k - 1, false);
+            auto resultSrSl = pG->getSubgraphNumber_Star_All(k, k - 1, false, constraint, false);
             outFileSrSl << resultSrSl << "  \t";
         }
 
