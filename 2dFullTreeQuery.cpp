@@ -130,5 +130,6 @@ double Graph::testSubgraph_2dTree(std::size_t b1, std::size_t b2, int sampleTime
     delete[] sample1;
     delete[] sample2;
 
+    cout << "[" << result << " " << sampleTimes << "]" << endl;
     return double(result) / sampleTimes;
 }

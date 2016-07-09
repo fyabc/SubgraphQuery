@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     string N = "10000";
     string p = "2.2";
     auto b1MaxStr = "3";
-    auto b2MaxStr = "100";
+    auto b2MaxStr = "500";
     size_t b1Max = (size_t)atoi(b1MaxStr);
     size_t b2Max = (size_t)atoi(b2MaxStr);
     size_t threshold = 11;
@@ -44,13 +44,11 @@ int main(int argc, char* argv[]) {
             outFile << b1 << "  \t" << b2 << "  \t";
 
             auto resultI = pG->getSubgraphNumber_2dFullTree_ignore(b1, b2);
-            expRep(resultI, outFile);
-            outFile << " " << resultI.get_str(10).size() << "  \t";
+            outFile << resultI << "  \t";
 
             if (1 + b1 + b1 * b2 <= threshold) {
                 auto resultC = pG->getSubgraphNumber_Tree(*pQ, sampleTimes);
-                expRep(resultC, outFile);
-                outFile << " " << resultC.get_str(10).size() << "  \t";
+                outFile << resultC << "  \t";
             }
 
             outFile << endl;

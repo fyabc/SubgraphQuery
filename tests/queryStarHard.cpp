@@ -14,43 +14,56 @@ int main(int argc, char* argv[]) {
 #include "../config.txt"
     ;
 
-    string N = "100000";
+    string N = "10000";
     string p = "2.2";
-    string maxConstraintStr = "10";
+    string maxConstraintStr = "100";
 
     size_t maxConstraint = (size_t)atoi(maxConstraintStr.c_str());
 
     auto pG = Graph::fromFile(path + "/data/pl_" + N + "_" + p + ".txt");
 
-    ofstream outFileHard(path + "/result/star_hard_pl_" + N + "_" + p + "_" + maxConstraintStr + ".txt");
-    ofstream outFileSoft(path + "/result/star_soft_pl_" + N + "_" + p + "_" + maxConstraintStr + ".txt");
+    ofstream outFileHrHl(path + "/result/star_hr_hl_pl_" + N + "_" + p + "_" + maxConstraintStr + ".txt");
+    ofstream outFileHrSl(path + "/result/star_hr_sl_pl_" + N + "_" + p + "_" + maxConstraintStr + ".txt");
+    ofstream outFileSrHl(path + "/result/star_sr_hl_pl_" + N + "_" + p + "_" + maxConstraintStr + ".txt");
+    ofstream outFileSrSl(path + "/result/star_sr_sl_pl_" + N + "_" + p + "_" + maxConstraintStr + ".txt");
 
     for (size_t k = 1; k < pG->size(); ++k) {
-        if (k % 100 == 0)
+        if (k % 1 == 0)
             cout << k << endl;
 
-        if (k - 1 > pG->maxDegree())
+        if (k - 1 > pG->maxDegree() + 1)
             break;
 
-        outFileHard << k << "   \t";
-        outFileSoft << k << "   \t";
+        outFileHrHl << k << "   \t";
+        outFileHrSl << k << "   \t";
+        outFileSrHl << k << "   \t";
+        outFileSrSl << k << "   \t";
 
-        auto pQ = Graph::createStar(k);
         for (size_t constraint = 1; constraint < maxConstraint; ++constraint) {
-            auto resultH = pG->getSubgraphNumber_Star_DegreesHard(*pQ, constraint);
-            expRep(resultH, outFileHard);
-            outFileHard << " " << resultH.get_str(10).size() << "  \t";
+//            auto resultH = pG->getSubgraphNumber_Star_DegreesHard(*pQ, constraint, k - 1);
+//            expRep(resultH, outFileHard);
+//            outFileHard << " " << resultH << "  \t";
 
-            auto resultS = pG->getSubgraphNumber_Star_DegreesSoft(*pQ, constraint);
-            expRep(resultS, outFileSoft);
-            outFileSoft << " " << resultS.get_str(10).size() << "  \t";
+            auto resultHrHl = pG->getSubgraphNumber_Star_All(k, constraint, true, k - 1, true);
+            outFileHrHl << resultHrHl << "  \t";
+            auto resultHrSl = pG->getSubgraphNumber_Star_All(k, constraint, true, k - 1, false);
+            outFileHrSl << resultHrSl << "  \t";
+            auto resultSrHl = pG->getSubgraphNumber_Star_All(k, constraint, false, k - 1, true);
+            outFileSrHl << resultSrHl << "  \t";
+            auto resultSrSl = pG->getSubgraphNumber_Star_All(k, constraint, false, k - 1, false);
+            outFileSrSl << resultSrSl << "  \t";
         }
 
-        outFileHard << endl;
-        outFileSoft << endl;
+        outFileHrHl << endl;
+        outFileHrSl << endl;
+        outFileSrHl << endl;
+        outFileSrSl << endl;
     }
 
-    outFileHard.close();
+    outFileHrHl.close();
+    outFileHrSl.close();
+    outFileSrHl.close();
+    outFileSrSl.close();
 
     return 0;
 }
