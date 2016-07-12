@@ -18,6 +18,11 @@
  *  Nodes in this graph are 0 ~ n-1, n is the number of nodes.
  */
 class Graph {
+
+    /* ====================================================================== */
+    /* ============================= Subclasses ============================= */
+    /* ====================================================================== */
+
     struct Vertex {
         std::size_t degree = 0;
         std::unordered_set<std::size_t> adj = std::unordered_set<std::size_t>();
@@ -50,6 +55,13 @@ class Graph {
         std::vector<std::size_t> boundaryNodes;    // Boundary Nodes.
     };
 
+    /* ====================================================================== */
+    /* ========================== Member Variables ========================== */
+    /* ====================================================================== */
+
+    std::size_t N;
+    std::vector<Vertex> vertices;
+
 public:
     explicit Graph(std::size_t N) :
             N(N), vertices(std::vector<Vertex>(N)) {}
@@ -61,7 +73,10 @@ public:
     Graph& operator=(const Graph&) = default;
     Graph& operator=(Graph&&) = default;
 
-    // some factory functions.
+    /* ====================================================================== */
+    /* ======================== Some Factory Methods ======================== */
+    /* ====================================================================== */
+
     static std::unique_ptr<Graph> fromFile(const std::string& fileName);
     static std::unique_ptr<Graph> fromTypeString(const std::string& typeString);
     static std::unique_ptr<Graph> createStar(std::size_t n);
@@ -70,6 +85,10 @@ public:
     static std::unique_ptr<Graph> createTreeH(const std::vector<std::size_t>& widths);
     static std::unique_ptr<Graph> createER(std::size_t n, std::size_t m);
     void toFile(const std::string& fileName) const;
+
+    /* ====================================================================== */
+    /* ============================ Basic Methods =========================== */
+    /* ====================================================================== */
 
     std::size_t size() const { return N; }
     std::size_t degree(std::size_t i) const { return vertices[i].degree; }
@@ -81,7 +100,6 @@ public:
     
     void addEdge(std::size_t src, std::size_t dst);
     void removeEdge(std::size_t src, std::size_t dst);
-
     bool haveEdge(std::size_t src, std::size_t dst) const;
 
     /// Test if G is a star.
@@ -97,12 +115,20 @@ public:
     /// Get the connect component which contains vertex start.
     std::unordered_set<std::size_t> getConnectComponent(std::size_t start) const;
 
+    /* ====================================================================== */
+    /* =========================== Simple Sampling ========================== */
+    /* ====================================================================== */
+
+private:
+    bool contain(const std::size_t* ver, const Graph& Q) const;
+
+public:
     /// Do subgraph test for sampleTimes.
     int testSubgraph(const Graph& Q, int sampleTimes = 1) const;
 
-    /// Brute Force subgraph counting using color coding.
-    /// (This method is used for checking results of other methods)
-    mpz_class getSubgraphNumber_BF(const Graph& Q, int sampleTimes = 1) const;
+    /* ====================================================================== */
+    /* ============================= Star Query ============================= */
+    /* ====================================================================== */
 
     /// Star query.
     mpz_class getSubgraphNumber_Star(const Graph& Q) const;
@@ -114,15 +140,39 @@ public:
     mpz_class getSubgraphNumber_Star_All(std::size_t k, std::size_t constraintRoot, bool rootHard,
                                          std::size_t constraintLeaf, bool leafHard) const;
 
+    /* ====================================================================== */
+    /* ============================ Color Coding ============================ */
+    /* ====================================================================== */
+
+private:
+    void randomColor(std::size_t qSize) const;
+
+public:
+    /// Brute Force subgraph counting using color coding.
+    /// (This method is used for checking results of other methods)
+    mpz_class getSubgraphNumber_BF(const Graph& Q, int sampleTimes = 1) const;
+
+private:
+    void testPermutations(const Graph& Q, std::size_t *ver,
+                          const std::vector<std::unordered_set<std::size_t>>& colorVertices,
+                          std::size_t depth, mpz_class& result) const;
+
+    /* ====================================================================== */
+
+public:
     /// Tree query using color coding and dynamic programming in paper [30].
     /// Q must be a tree. The root of Q will be set to 0 by default.
     mpz_class getSubgraphNumber_Tree(const Graph& Q, int sampleTimes = 1) const;
 
+    /// Get the tree decompose of graph.
+    /// [NOTE]: the graph must be a tree, the default root is 0.
+    std::vector<DecomposeTreeNode> treeDecompose(std::size_t root = 0) const;
+
+    /* ====================================================================== */
+
     /// Graph query using color coding in paper [Subgraph Counting].
     /// Q must be a graph which treewidth <= 2.
     mpz_class getSubgraphNumber_2Treewidth(const Graph& Q, int sampleTimes = 1) const;
-
-    /* ====================================================================== */
 
     /// Get the 2-treewidth decompose of graph.
     /// [NOTE]: the graph must be have treewidth <= 2.
@@ -142,6 +192,10 @@ public:
     mpz_class getSubgraphNumber_FullTree(const std::vector<std::size_t>& branches,
                                          int sampleTimes = 1) const;
 
+    /* ====================================================================== */
+    /* ======================= 2-Depth Full Tree Query ====================== */
+    /* ====================================================================== */
+
     /// 2-depth full tree query.
     mpz_class getSubgraphNumber_2dFullTree(std::size_t b1, std::size_t b2, int sampleTimes = 1) const;
 
@@ -150,27 +204,6 @@ public:
 
     /// 2-depth full tree query sampling.
     double testSubgraph_2dTree(std::size_t b1, std::size_t b2, int sampleTimes = 1) const;
-
-    /// Get the tree decompose of graph.
-    /// [NOTE]: the graph must be a tree, the default root is 0.
-    std::vector<DecomposeTreeNode> treeDecompose(std::size_t root = 0) const;
-
-    /// (Large) Tree query with hard or soft degree constraints.
-    /// constraints[i] == -1 means vertex i doesn't have constraint.
-    mpz_class getSubgraphNumber_Tree_DegreesHard(const Graph& Q, const std::vector<int>& constraints) const;
-    mpz_class getSubgraphNumber_Tree_DegreesSoft(const Graph& Q, const std::vector<int>& constraints) const;
-
-private:
-    std::size_t N;
-    std::vector<Vertex> vertices;
-
-    bool contain(const std::size_t* ver, const Graph& Q) const;
-
-    void randomColor(std::size_t qSize) const;
-
-    void testPermutations(const Graph& Q, std::size_t *ver,
-                          const std::vector<std::unordered_set<std::size_t>>& colorVertices,
-                          std::size_t depth, mpz_class& result) const;
 };
 
 #endif //SUBGRAPHQUERY_QUERY_H

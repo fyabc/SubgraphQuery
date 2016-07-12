@@ -228,19 +228,23 @@ mpz_class Graph::getSubgraphNumber_FullTree(const vector<size_t> &branches, int 
     return result;
 }
 
-std::vector<DecomposeTree2Node> Graph::tree2Decompose() const {
-    vector<DecomposeTree2Node> result;
+mpz_class Graph::getSubgraphNumber_2Treewidth(const Graph &Q, int sampleTimes) const {
+    mpz_class result(0);
 
+    auto k = Q.size();
+    auto decomposeTree = tree2Decompose();
+
+    for (auto i = 0; i < sampleTimes; ++i) {
+        randomColor(k);
+    }
 
     return result;
 }
 
-mpz_class Graph::getSubgraphNumber_2Treewidth(const Graph &Q, int sampleTimes) const {
-    mpz_class result(0);
+std::vector<Graph::DecomposeTree2Node> Graph::tree2Decompose() const {
+    auto Q = *this;
 
-    for (auto i = 0; i < sampleTimes; ++i) {
-
-    }
+    vector<DecomposeTree2Node> result;
 
     return result;
 }

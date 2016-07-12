@@ -133,3 +133,10 @@ double Graph::testSubgraph_2dTree(std::size_t b1, std::size_t b2, int sampleTime
     cout << "[" << result << " " << sampleTimes << "]" << endl;
     return double(result) / sampleTimes;
 }
+
+mpz_class Graph::getSubgraphNumber_2dFullTree(std::size_t b1, std::size_t b2, int sampleTimes) const {
+    const size_t Acc = 1000000;
+    auto rate = testSubgraph_2dTree(b1, b2, sampleTimes);
+
+    return getSubgraphNumber_2dFullTree_ignore(b1, b2) * size_t(rate * Acc) / Acc;
+}

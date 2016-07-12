@@ -10,7 +10,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    srand((size_t)time(nullptr));
+    srand((unsigned int)time(nullptr));
 
     string path =
 #include "../config.txt"

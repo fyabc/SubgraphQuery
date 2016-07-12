@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     string p = "2.2";
     size_t constraint = 2;
     char buf[22];
-    sprintf(buf, "%u", constraint);
+    sprintf(buf, "%lu", constraint);
 
     auto pG = Graph::fromFile(path + "/data/pl_" + N + "_" + p + ".txt");
 
