@@ -209,8 +209,7 @@ mpz_class Graph::getSubgraphNumber_Tree(const Graph& Q, int sampleTimes) const {
         }
 
         for (size_t v = 0; v < N; ++v) {
-            const auto& rv = DP[make_pair(0, v)];
-            for (const auto& rvi: rv) {
+            for (const auto& rvi: DP[make_pair(0, v)]) {
                 result += rvi.second;
             }
         }
@@ -227,4 +226,33 @@ mpz_class Graph::getSubgraphNumber_FullTree(const vector<size_t> &branches, int 
     }
 
     return result;
+}
+
+std::vector<DecomposeTree2Node> Graph::tree2Decompose() const {
+    vector<DecomposeTree2Node> result;
+
+
+    return result;
+}
+
+mpz_class Graph::getSubgraphNumber_2Treewidth(const Graph &Q, int sampleTimes) const {
+    mpz_class result(0);
+
+    for (auto i = 0; i < sampleTimes; ++i) {
+
+    }
+
+    return result;
+}
+
+void Graph::contractLeaf(std::size_t bNode) {
+
+}
+
+void Graph::contractCycle1(std::size_t bNode) {
+
+}
+
+void Graph::contractCycle2(std::size_t bNode1, std::size_t bNode2) {
+
 }

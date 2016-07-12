@@ -36,10 +36,18 @@ class Graph {
         }
     };
 
+    /// A decompose tree node, is a subtree of the origin graph.
     struct DecomposeTreeNode {
         std::unordered_set<std::size_t> vertices;
         int parent, activeChild, passiveChild;
         std::size_t root;
+    };
+
+    /// A 2-treewidth decompose tree node, is a leaf or cycle of the origin graph.
+    struct DecomposeTree2Node {
+        std::unordered_set<std::size_t> vertices;
+        int parent, leftChild, rightChild;
+        std::vector<std::size_t> boundaryNodes;    // Boundary Nodes.
     };
 
 public:
@@ -90,11 +98,11 @@ public:
     std::unordered_set<std::size_t> getConnectComponent(std::size_t start) const;
 
     /// Do subgraph test for sampleTimes.
-    int testSubgraph(const Graph& Q, int sampleTimes=100000) const;
+    int testSubgraph(const Graph& Q, int sampleTimes = 1) const;
 
     /// Brute Force subgraph counting using color coding.
     /// (This method is used for checking results of other methods)
-    mpz_class getSubgraphNumber_BF(const Graph& Q, int sampleTimes = 10000) const;
+    mpz_class getSubgraphNumber_BF(const Graph& Q, int sampleTimes = 1) const;
 
     /// Star query.
     mpz_class getSubgraphNumber_Star(const Graph& Q) const;
@@ -108,21 +116,40 @@ public:
 
     /// Tree query using color coding and dynamic programming in paper [30].
     /// Q must be a tree. The root of Q will be set to 0 by default.
-    mpz_class getSubgraphNumber_Tree(const Graph& Q, int sampleTimes = 1000) const;
+    mpz_class getSubgraphNumber_Tree(const Graph& Q, int sampleTimes = 1) const;
 
+    /// Graph query using color coding in paper [Subgraph Counting].
+    /// Q must be a graph which treewidth <= 2.
+    mpz_class getSubgraphNumber_2Treewidth(const Graph& Q, int sampleTimes = 1) const;
+
+    /* ====================================================================== */
+
+    /// Get the 2-treewidth decompose of graph.
+    /// [NOTE]: the graph must be have treewidth <= 2.
+    std::vector<DecomposeTree2Node> tree2Decompose() const;
+
+private:
+    /// Contract a leaf or cycle from the graph.
+    void contractLeaf(std::size_t bNode);
+    void contractCycle1(std::size_t bNode);
+    void contractCycle2(std::size_t bNode1, std::size_t bNode2);
+
+    /* ====================================================================== */
+
+public:
     /// Full tree query.
     /// Using color coding.
     mpz_class getSubgraphNumber_FullTree(const std::vector<std::size_t>& branches,
-                                         int sampleTimes = 1000) const;
+                                         int sampleTimes = 1) const;
 
     /// 2-depth full tree query.
-    mpz_class getSubgraphNumber_2dFullTree(std::size_t b1, std::size_t b2, int sampleTimes = 1000) const;
+    mpz_class getSubgraphNumber_2dFullTree(std::size_t b1, std::size_t b2, int sampleTimes = 1) const;
 
     /// 2-depth full tree query (ignore conflicts).
     mpz_class getSubgraphNumber_2dFullTree_ignore(std::size_t b1, std::size_t b2) const;
 
     /// 2-depth full tree query sampling.
-    double testSubgraph_2dTree(std::size_t b1, std::size_t b2, int sampleTimes = 1000) const;
+    double testSubgraph_2dTree(std::size_t b1, std::size_t b2, int sampleTimes = 1) const;
 
     /// Get the tree decompose of graph.
     /// [NOTE]: the graph must be a tree, the default root is 0.
