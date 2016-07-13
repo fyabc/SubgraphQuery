@@ -174,13 +174,17 @@ public:
     /// Q must be a graph which treewidth <= 2.
     mpz_class getSubgraphNumber_2Treewidth(const Graph& Q, int sampleTimes = 1) const;
 
+    /// 2 Treewidth query with decompose given.
+    mpz_class getSubgraphNumber_2Treewidth_Decompose(const Graph& Q, const std::vector<DecomposeTree2Node>& decompose,
+                                                     int sampleTimes = 1) const;
+
     /// Get the 2-treewidth decompose of graph.
     /// [NOTE]: the graph must be have treewidth <= 2.
     std::vector<DecomposeTree2Node> tree2Decompose() const;
 
 private:
     /// Contract a leaf or cycle from the graph.
-    void contractLeaf(std::size_t bNode);
+    void contractLeaf(std::size_t bNode, std::vector<Graph::DecomposeTree2Node>& decompose);
     void contractCycle1(std::size_t bNode);
     void contractCycle2(std::size_t bNode1, std::size_t bNode2);
 

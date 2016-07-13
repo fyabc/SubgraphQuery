@@ -231,10 +231,14 @@ mpz_class Graph::getSubgraphNumber_FullTree(const vector<size_t> &branches, int 
 }
 
 mpz_class Graph::getSubgraphNumber_2Treewidth(const Graph& Q, int sampleTimes) const {
+    return getSubgraphNumber_2Treewidth_Decompose(Q, tree2Decompose(), sampleTimes);
+}
+
+mpz_class Graph::getSubgraphNumber_2Treewidth_Decompose(const Graph& Q, const vector<Graph::DecomposeTree2Node>& decompose,
+                                                        int sampleTimes) const {
     mpz_class result(0);
 
     auto k = Q.size();
-    auto decompose = tree2Decompose();
 
     for (auto i = 0; i < sampleTimes; ++i) {
         randomColor(k);
@@ -242,7 +246,13 @@ mpz_class Graph::getSubgraphNumber_2Treewidth(const Graph& Q, int sampleTimes) c
         // for all sub-templates s
         for (int s = int(decompose.size()) - 1; s >= 0; --s) {
             const auto& node = decompose[s];
+
+            // parse leaf node.
             if (node.leftChild == -1) {
+                // leaf cycle node
+
+                // leaf leaf node
+
                 continue;
             }
         }
@@ -253,13 +263,16 @@ mpz_class Graph::getSubgraphNumber_2Treewidth(const Graph& Q, int sampleTimes) c
 
 std::vector<Graph::DecomposeTree2Node> Graph::tree2Decompose() const {
     auto Q = *this;
-
     vector<DecomposeTree2Node> result;
+
+    unordered_set<size_t> validVertices;
+    for (size_t i = 0; i < N; ++i)
+        validVertices.insert(i);
 
     return result;
 }
 
-void Graph::contractLeaf(std::size_t bNode) {
+void Graph::contractLeaf(std::size_t bNode, std::vector<Graph::DecomposeTree2Node>& decompose) {
 
 }
 
