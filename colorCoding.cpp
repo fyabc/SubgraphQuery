@@ -184,9 +184,11 @@ mpz_class Graph::getSubgraphNumber_Tree(const Graph& Q, int sampleTimes) const {
 //            cout << s << endl;
 
             // if s is a leaf node (only one vertex), just set boundary values.
-            if (decompose[s].activeChild == -1)
+            if (decompose[s].activeChild == -1) {
                 for (size_t v = 0; v < N; ++v)
                     DP[make_pair(s, v)][makeSet(k, {vertices[v].color})] = 1;
+                continue;
+            }
 
             // for all vertices v in G
             for (size_t v = 0; v < N; ++v) {
@@ -228,14 +230,22 @@ mpz_class Graph::getSubgraphNumber_FullTree(const vector<size_t> &branches, int 
     return result;
 }
 
-mpz_class Graph::getSubgraphNumber_2Treewidth(const Graph &Q, int sampleTimes) const {
+mpz_class Graph::getSubgraphNumber_2Treewidth(const Graph& Q, int sampleTimes) const {
     mpz_class result(0);
 
     auto k = Q.size();
-    auto decomposeTree = tree2Decompose();
+    auto decompose = tree2Decompose();
 
     for (auto i = 0; i < sampleTimes; ++i) {
         randomColor(k);
+
+        // for all sub-templates s
+        for (int s = int(decompose.size()) - 1; s >= 0; --s) {
+            const auto& node = decompose[s];
+            if (node.leftChild == -1) {
+                continue;
+            }
+        }
     }
 
     return result;
