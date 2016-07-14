@@ -12,6 +12,7 @@
 #include <vector>
 #include <unordered_set>
 #include <iostream>
+#include <unordered_map>
 
 /**
  *  This is a class of an undirected graph.
@@ -48,11 +49,36 @@ class Graph {
         std::size_t root;
     };
 
+public:
     /// A 2-treewidth decompose tree node, is a leaf or cycle of the origin graph.
     struct DecomposeTree2Node {
-        std::unordered_set<std::size_t> vertices;
-        int parent, leftChild, rightChild;
-        std::vector<std::size_t> boundaryNodes;    // Boundary Nodes.
+        // The vertices are in order (if it is a cycle)
+        std::vector<std::size_t> vertices;
+        // anVer[i] == j means vertices[i] is annotated by child j (j == -1 means not annotated)
+        std::vector<int> annotatedVertices;
+        // anEd[i] == j means edge (vertices[i], vertices[i+1]) is annotated by child j (j == -1 means not annotated)
+        std::vector<int> annotatedEdges;
+
+        int parent;
+
+        // children of the node.
+        std::vector<int> children;
+
+        // Indexes of Boundary Nodes in vertices.
+        // 1 or 2 nodes.
+        std::vector<std::size_t> bNodeIndexes;
+
+        struct Vec_S_Hasher {
+            inline size_t operator() (const std::vector<size_t>& v) const {
+                if (v.size() == 1)
+                    return std::hash<size_t>()(v[0]);
+                return std::hash<size_t>()(v[0]) ^ (std::hash<size_t>()(v[1]) << 1);
+            }
+        };
+
+        // Counts of this node for all vertices in G and all color sets.
+        // Used to calculate counts of parent nodes.
+        std::unordered_map<std::vector<std::size_t>, std::unordered_map<std::vector<bool>, mpz_class>, Vec_S_Hasher> count;
     };
 
     /* ====================================================================== */
@@ -115,6 +141,9 @@ public:
     /// Get the connect component which contains vertex start.
     std::unordered_set<std::size_t> getConnectComponent(std::size_t start) const;
 
+private:
+    std::size_t getColor(std::size_t i) const { return vertices[i].color; }
+
     /* ====================================================================== */
     /* =========================== Simple Sampling ========================== */
     /* ====================================================================== */
@@ -175,7 +204,7 @@ public:
     mpz_class getSubgraphNumber_2Treewidth(const Graph& Q, int sampleTimes = 1) const;
 
     /// 2 Treewidth query with decompose given.
-    mpz_class getSubgraphNumber_2Treewidth_Decompose(const Graph& Q, const std::vector<DecomposeTree2Node>& decompose,
+    mpz_class getSubgraphNumber_2Treewidth_Decompose(const Graph &Q, std::vector<DecomposeTree2Node> &decompose,
                                                      int sampleTimes = 1) const;
 
     /// Get the 2-treewidth decompose of graph.
@@ -187,6 +216,14 @@ private:
     void contractLeaf(std::size_t bNode, std::vector<Graph::DecomposeTree2Node>& decompose);
     void contractCycle1(std::size_t bNode);
     void contractCycle2(std::size_t bNode1, std::size_t bNode2);
+
+    void calculateNode(const Graph &Q, DecomposeTree2Node &node, const std::vector<DecomposeTree2Node> &decompose) const;
+
+    /// PS Algorithm.
+    void pathSplittingAlgorithm(const DecomposeTree2Node& node) const;
+
+    /// DB Algorithm.
+    void degreeBasedAlgorithm(const DecomposeTree2Node& node) const;
 
     /* ====================================================================== */
 

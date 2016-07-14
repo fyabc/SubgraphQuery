@@ -47,6 +47,28 @@ inline vector<bool> operator| (const vector<bool>& lhs, const vector<bool>& rhs)
     return result;
 }
 
+inline vector<bool> operator& (const vector<bool>& lhs, const vector<bool>& rhs) {
+    vector<bool> result(lhs.size());
+    auto il = lhs.cbegin(), ir = rhs.cbegin();
+    for (auto ire = result.begin(); ire != result.end(); ++ire, ++il, ++ir)
+        *ire = *il && *ir;
+    return result;
+}
+
+inline bool operator== (const vector<bool>& lhs, const vector<bool>& rhs) {
+    for (auto il = lhs.cbegin(), ir = rhs.cbegin(); il != lhs.end(); ++il, ++ir)
+        if (*il != *ir)
+            return false;
+    return true;
+}
+
+inline vector<bool> addColor(const vector<bool> &lhs, size_t i) {
+    auto result(lhs);
+    result[i] = true;
+
+    return result;
+}
+
 // functions below are for debug.
 
 inline size_t nnz(const vector<bool>& op) {
@@ -230,11 +252,15 @@ mpz_class Graph::getSubgraphNumber_FullTree(const vector<size_t> &branches, int 
     return result;
 }
 
+
+/// Query with tree width 2.
+
 mpz_class Graph::getSubgraphNumber_2Treewidth(const Graph& Q, int sampleTimes) const {
-    return getSubgraphNumber_2Treewidth_Decompose(Q, tree2Decompose(), sampleTimes);
+    auto decompose = tree2Decompose();
+    return getSubgraphNumber_2Treewidth_Decompose(Q, decompose, sampleTimes);
 }
 
-mpz_class Graph::getSubgraphNumber_2Treewidth_Decompose(const Graph& Q, const vector<Graph::DecomposeTree2Node>& decompose,
+mpz_class Graph::getSubgraphNumber_2Treewidth_Decompose(const Graph& Q, vector<DecomposeTree2Node>& decompose,
                                                         int sampleTimes) const {
     mpz_class result(0);
 
@@ -245,29 +271,26 @@ mpz_class Graph::getSubgraphNumber_2Treewidth_Decompose(const Graph& Q, const ve
 
         // for all sub-templates s
         for (int s = int(decompose.size()) - 1; s >= 0; --s) {
-            const auto& node = decompose[s];
+            auto& node = decompose[s];
 
-            // parse leaf node.
-            if (node.leftChild == -1) {
-                // leaf cycle node
+            // parse the node (leaf, 1-boundary cycle or 2-boundary cycle).
+            calculateNode(Q, node, decompose);
+        }
 
-                // leaf leaf node
-
-                continue;
+        for (const auto& countV: decompose[0].count) {
+            for (const auto& countVC: countV.second) {
+                disp(countVC.first);
+                result += countVC.second;
             }
         }
     }
 
-    return result;
+    return result * power(k, k) / fac(k) / sampleTimes;
 }
 
 std::vector<Graph::DecomposeTree2Node> Graph::tree2Decompose() const {
     auto Q = *this;
     vector<DecomposeTree2Node> result;
-
-    unordered_set<size_t> validVertices;
-    for (size_t i = 0; i < N; ++i)
-        validVertices.insert(i);
 
     return result;
 }
@@ -281,5 +304,86 @@ void Graph::contractCycle1(std::size_t bNode) {
 }
 
 void Graph::contractCycle2(std::size_t bNode1, std::size_t bNode2) {
+
+}
+
+void Graph::calculateNode(const Graph &Q, DecomposeTree2Node &node, const vector<DecomposeTree2Node> &decompose) const {
+    auto k = Q.size();
+
+    if (node.vertices.size() == 2) {
+        // leaf node
+        // leaf node cannot have annotated edge.
+    }
+    else if (node.bNodeIndexes.size() == 1) {
+        // 1 boundary cycle node
+    }
+    else {
+        // 2 boundary cycle node
+        auto L = node.vertices.size();
+        auto p = node.bNodeIndexes[0], q = node.bNodeIndexes[1];
+
+        // Counts of P+ and P- (p, q are boundary nodes, p < q)
+        // P+ is path p, p+1, ..., q
+        // P- is path p, p-1, ..., q
+        // positiveCounts[i] = Count[*,*| P+(p, p+i+1 % L)]
+        // negativeCounts[i] = Count[*,*| P-(p, p-i-1 % L)]
+        vector<decltype(node.count)> pathCounts(max(q - p, p + L - q));
+
+        // for each edge (u, v) in G
+        for (size_t u = 0; u < N; ++u) {
+            for (const auto& v: getAdj(u)) {
+                if (u > v)
+                    continue;
+                pathCounts[0][{u, v}][makeSet(k, {getColor(u), getColor(v)})] = 1;
+            }
+        }
+
+        // for all edges in path P+/P-.
+        // the calculate is same for P+/P-, so calculate the max one, then get another.
+        for (size_t j = 1; j < pathCounts.size(); ++j) {
+            // for each (u, v, color_set) with Count[u, v, c] != 0
+            for (const auto& countUV: pathCounts[j - 1]) {
+                auto u = countUV.first[0], v = countUV.first[1];
+                for (const auto& countUVC: countUV.second) {
+                    const auto& colorSet = countUVC.first;
+
+                    // for each edge (v, w) in G with color(w) not in c
+                    for (const auto& w: getAdj(v)) {
+                        if (!colorSet[getColor(w)]) {
+                            pathCounts[j][{u, w}][addColor(colorSet, getColor(w))] += pathCounts[j - 1][countUV.first][colorSet];
+                        }
+                    }
+                }
+            }
+        }
+
+        // computing projection table for the cycle.
+        const auto& positiveCount = pathCounts[q - p - 1];
+        auto& negativeCount = pathCounts[p + L - q - 1];
+
+        // for each (u, v, c1) with Count[u, v, c1|P+] != 0
+        // for each (u, v, c2) with Count[u, v, c2|P-] != 0
+        for (const auto& countPUV: positiveCount) {
+            auto u = countPUV.first[0], v = countPUV.first[1];
+            for (const auto& countPUVC1: countPUV.second) {
+                const auto& c1 = countPUVC1.first;
+                for (const auto& countNUVC2: negativeCount[countPUV.first]) {
+                    const auto& c2 = countNUVC2.first;
+                    if ((c1 & c2) == makeSet(k, {getColor(u), getColor(v)})) {
+                        cout << "["; disp(c1); disp(c2); cout << "]";
+                        cout << "(" << u << " " << getColor(u) << "|" << v << " " << getColor(v) << ")" << endl;
+                        node.count[countPUV.first][c1 | c2] += countPUVC1.second * countNUVC2.second;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Graph::pathSplittingAlgorithm(const DecomposeTree2Node &node) const {
+
+}
+
+void Graph::degreeBasedAlgorithm(const DecomposeTree2Node &node) const {
 
 }
