@@ -268,19 +268,21 @@ mpz_class Graph::getSubgraphNumber_2Treewidth_Decompose(const Graph& Q, vector<D
 
     for (auto i = 0; i < sampleTimes; ++i) {
         randomColor(k);
+        for (auto& elem: decompose)
+            elem.count.clear();
 
         // for all sub-templates s
         for (int s = int(decompose.size()) - 1; s >= 0; --s) {
             auto& node = decompose[s];
 
             // parse the node (leaf, 1-boundary cycle or 2-boundary cycle).
-            calculateNode(Q, node, decompose);
+            calculateNode_PS(Q, node, decompose);
         }
 
         for (const auto& countV: decompose[0].count) {
             for (const auto& countVC: countV.second) {
-                disp(countVC.first);
                 result += countVC.second;
+//                cout << countVC.second << endl;
             }
         }
     }
@@ -307,7 +309,7 @@ void Graph::contractCycle2(std::size_t bNode1, std::size_t bNode2) {
 
 }
 
-void Graph::calculateNode(const Graph &Q, DecomposeTree2Node &node, const vector<DecomposeTree2Node> &decompose) const {
+void Graph::calculateNode_PS(const Graph& Q, DecomposeTree2Node& node, const vector<DecomposeTree2Node>& decompose) const {
     auto k = Q.size();
 
     if (node.vertices.size() == 2) {
@@ -332,7 +334,9 @@ void Graph::calculateNode(const Graph &Q, DecomposeTree2Node &node, const vector
         // for each edge (u, v) in G
         for (size_t u = 0; u < N; ++u) {
             for (const auto& v: getAdj(u)) {
-                if (u > v)
+//                if (u > v)
+//                    continue;
+                if (getColor(u) == getColor(v))
                     continue;
                 pathCounts[0][{u, v}][makeSet(k, {getColor(u), getColor(v)})] = 1;
             }
@@ -340,6 +344,8 @@ void Graph::calculateNode(const Graph &Q, DecomposeTree2Node &node, const vector
 
         // for all edges in path P+/P-.
         // the calculate is same for P+/P-, so calculate the max one, then get another.
+
+        // Most time cost here.
         for (size_t j = 1; j < pathCounts.size(); ++j) {
             // for each (u, v, color_set) with Count[u, v, c] != 0
             for (const auto& countUV: pathCounts[j - 1]) {
@@ -348,8 +354,10 @@ void Graph::calculateNode(const Graph &Q, DecomposeTree2Node &node, const vector
                     const auto& colorSet = countUVC.first;
 
                     // for each edge (v, w) in G with color(w) not in c
-                    for (const auto& w: getAdj(v)) {
+                    for (auto w: getAdj(v)) {
                         if (!colorSet[getColor(w)]) {
+//                            cout << nnz(colorSet) << "#" << j << endl;
+//                            cout << "{" << u << " " << getColor(u) << "|" << v << " " << getColor(v) << "}" << endl;
                             pathCounts[j][{u, w}][addColor(colorSet, getColor(w))] += pathCounts[j - 1][countUV.first][colorSet];
                         }
                     }
@@ -370,8 +378,8 @@ void Graph::calculateNode(const Graph &Q, DecomposeTree2Node &node, const vector
                 for (const auto& countNUVC2: negativeCount[countPUV.first]) {
                     const auto& c2 = countNUVC2.first;
                     if ((c1 & c2) == makeSet(k, {getColor(u), getColor(v)})) {
-                        cout << "["; disp(c1); disp(c2); cout << "]";
-                        cout << "(" << u << " " << getColor(u) << "|" << v << " " << getColor(v) << ")" << endl;
+//                        cout << "["; disp(c1); disp(c2); cout << "]";
+//                        cout << "(" << u << " " << getColor(u) << "|" << v << " " << getColor(v) << ")" << endl;
                         node.count[countPUV.first][c1 | c2] += countPUVC1.second * countNUVC2.second;
                     }
                 }

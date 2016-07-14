@@ -36,34 +36,48 @@ int main(int argc, char* argv[]) {
 //    decompose[1].children = {};
 //    decompose[1].annotatedVertices = {-1, -1, -1};
 //    decompose[1].annotatedEdges = {-1, -1, -1};
-//    decompose[1].bNodeIndexes = {2, 3};
+//    decompose[1].bNodeIndexes = {1, 3};
 
-    Graph Q(3);
-    Q.addEdge(0, 1); Q.addEdge(0, 2); Q.addEdge(1, 2);
+    Graph Q = *Graph::createCycle(3);
 
     vector<Graph::DecomposeTree2Node> decompose(1);
     decompose[0].vertices = {0, 1, 2};
     decompose[0].children = {};
     decompose[0].annotatedVertices = {-1, -1, -1};
     decompose[0].annotatedEdges = {-1, -1, -1};
-    decompose[0].bNodeIndexes = {0, 2};
+    decompose[0].bNodeIndexes = {0, 1};
 
     clock_t timeBefore, timeAfter;
     mpz_class result;
 
-    timeBefore = clock();
-    result = pG->getSubgraphNumber_2Treewidth_Decompose(Q, decompose, 1);
-    timeAfter = clock();
+    for (auto i = 1; i <= 10; ++i) {
+        {
+            timeBefore = clock();
+            result = pG->getSubgraphNumber_2Treewidth_Decompose(Q, decompose, 1);
+            timeAfter = clock();
 
-    cout << "[CC]" << result << " " << result.get_str(10).size() << endl;
-    cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
+            cout << "[CC]" << result << " " << result.get_str(10).size() << endl;
+            cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
+        }
 
-    timeBefore = clock();
-    result = pG->getSubgraphNumber_BF(*(Graph::createCycle(3)), 1);
-    timeAfter = clock();
+        {
+            timeBefore = clock();
+            result = pG->getSubgraphNumber_Triangle();
+            timeAfter = clock();
 
-    cout << "[BF]" << result << " " << result.get_str(10).size() << endl;
-    cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
+            cout << "[TA]" << result << " " << result.get_str(10).size() << endl;
+            cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
+        }
+
+//        {
+//            timeBefore = clock();
+//            result = pG->getSubgraphNumber_BF(*(Graph::createCycle(3)), 1);
+//            timeAfter = clock();
+//
+//            cout << "[BF]" << result << " " << result.get_str(10).size() << endl;
+//            cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
+//        }
+    }
 
     return 0;
 }

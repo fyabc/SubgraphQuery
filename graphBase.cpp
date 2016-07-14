@@ -329,3 +329,21 @@ vector<unordered_set<size_t>> Graph::getDegreeDistribution() const {
 
     return result;
 }
+
+mpz_class Graph::getSubgraphNumber_Triangle() const {
+    mpz_class result(0);
+
+    for (size_t u = 0; u < N; ++u) {
+        const auto& uAdj = getAdj(u);
+        for (auto v: uAdj) {
+            const auto& vAdj = getAdj(v);
+            size_t count = 0;
+            for (auto av: vAdj)
+                if (uAdj.find(av) != uAdj.end())
+                    ++count;
+            result += count;
+        }
+    }
+
+    return result;
+}

@@ -9,6 +9,11 @@
 #include <cmath>
 #include <iostream>
 #include <unordered_map>
+#include <ctime>
+
+inline void dbgTime(const char* left = "[", const char* right = "]") {
+    std::cout << left << (double)clock() / CLOCKS_PER_SEC << right << std::endl;
+}
 
 inline std::size_t urand() {
     return (std::size_t)rand();

@@ -217,7 +217,7 @@ private:
     void contractCycle1(std::size_t bNode);
     void contractCycle2(std::size_t bNode1, std::size_t bNode2);
 
-    void calculateNode(const Graph &Q, DecomposeTree2Node &node, const std::vector<DecomposeTree2Node> &decompose) const;
+    void calculateNode_PS(const Graph& Q, DecomposeTree2Node& node, const std::vector<DecomposeTree2Node>& decompose) const;
 
     /// PS Algorithm.
     void pathSplittingAlgorithm(const DecomposeTree2Node& node) const;
@@ -245,6 +245,11 @@ public:
 
     /// 2-depth full tree query sampling.
     double testSubgraph_2dTree(std::size_t b1, std::size_t b2, int sampleTimes = 1) const;
+
+    /* ====================================================================== */
+    /* ======================== Other Special Queries ======================= */
+    /* ====================================================================== */
+    mpz_class getSubgraphNumber_Triangle() const;
 };
 
 #endif //SUBGRAPHQUERY_QUERY_H
