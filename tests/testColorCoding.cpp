@@ -16,8 +16,13 @@ int main(int argc, char* argv[]) {
 #include "../config.txt"
     ;
 
-    string N = "1000";
+    string N = "10000";
     string p = "2.2";
+
+    if (argc >= 2)
+        N = argv[1];
+    if (argc >= 3)
+        p = argv[2];
 
     auto pG = Graph::fromFile(path + "/data/pl_" + N + "_" + p + ".txt");
 

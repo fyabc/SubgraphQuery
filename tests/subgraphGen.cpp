@@ -5,6 +5,7 @@
 #include "../graph.h"
 
 #include <cstdio>
+#include <cstdlib>
 
 using namespace std;
 
@@ -16,6 +17,12 @@ int main(int argc, char* argv[]) {
     // generate 2d trees.
     size_t b1Max = 10;
     size_t b2Max = 30;
+
+    if (argc >= 2)
+        b1Max = (size_t)atoi(argv[1]);
+    if (argc >= 3)
+        b2Max = (size_t)atoi(argv[2]);
+
     char buf1[15], buf2[15];
 
     for (size_t b1 = 1; b1 <= b1Max; ++b1)

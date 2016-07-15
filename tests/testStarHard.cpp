@@ -18,6 +18,13 @@ int main(int argc, char* argv[]) {
     string p = "2.8";
     string maxConstraintStr = "20";
 
+    if (argc >= 2)
+        N = argv[1];
+    if (argc >= 3)
+        p = argv[2];
+    if (argc >= 4)
+        maxConstraintStr = argv[3];
+
     size_t maxConstraint = (size_t)atoi(maxConstraintStr.c_str());
 
     auto pG = Graph::fromFile(path + "/data/pl_" + N + "_" + p + ".txt");

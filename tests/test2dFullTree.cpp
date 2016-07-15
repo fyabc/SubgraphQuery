@@ -20,10 +20,21 @@ int main(int argc, char* argv[]) {
 
     string N = "10000";
     string p = "2.2";
-    auto b1MaxStr = "3";
-    auto b2MaxStr = "500";
-    size_t b1Max = (size_t)atoi(b1MaxStr);
-    size_t b2Max = (size_t)atoi(b2MaxStr);
+    string b1MaxStr = "3";
+    string b2MaxStr = "500";
+
+    if (argc >= 2)
+        N = argv[1];
+    if (argc >= 3)
+        p = argv[2];
+    if (argc >= 4)
+        b1MaxStr = argv[3];
+    if (argc >= 5)
+        b2MaxStr = argv[4];
+
+
+    size_t b1Max = (size_t)atoi(b1MaxStr.c_str());
+    size_t b2Max = (size_t)atoi(b2MaxStr.c_str());
     size_t threshold = 11;
 
     vector<size_t> branches(2);

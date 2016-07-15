@@ -18,6 +18,14 @@ int main(int argc, char* argv[]) {
     string N = "10000";
     string p = "2.2";
     size_t constraint = 2;
+
+    if (argc >= 2)
+        N = argv[1];
+    if (argc >= 3)
+        p = argv[2];
+    if (argc >= 4)
+        constraint = (size_t)atoi(argv[3]);
+
     char buf[22];
     sprintf(buf, "%lu", constraint);
 
