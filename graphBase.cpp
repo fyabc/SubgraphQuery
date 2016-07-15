@@ -155,6 +155,21 @@ unique_ptr<Graph> Graph::createCycle(std::size_t n) {
     return result;
 }
 
+std::unique_ptr<Graph> Graph::createComplete(std::size_t n) {
+    auto result = unique_ptr<Graph>(new Graph(n));
+    unordered_set<size_t> all;
+    for (size_t i = 0; i < n; ++i)
+        all.insert(i);
+
+    for (size_t i = 0; i < n; ++i) {
+        result->vertices[i].degree = n - 1;
+        result->vertices[i].adj = all;
+        result->vertices[i].adj.erase(i);
+    }
+
+    return result;
+}
+
 std::unique_ptr<Graph> Graph::createTree(std::size_t depth, std::size_t width) {
     std::size_t temp = 1, n = 1;
     for (auto i = 0; i < depth; ++i) {
@@ -233,6 +248,12 @@ void Graph::addEdge(std::size_t src, std::size_t dst) {
     vertices[dst].addEdge(src);
 }
 
+void Graph::addEdges(const initializer_list<size_t> &srcs, const initializer_list<size_t> &dsts) {
+    for (auto ps = srcs.begin(), pd = dsts.begin(); ps != srcs.end() && pd != dsts.end(); ++ps, ++pd) {
+        addEdge(*ps, *pd);
+    }
+}
+
 void Graph::removeEdge(std::size_t src, std::size_t dst) {
     vertices[src].removeEdge(dst);
     vertices[dst].removeEdge(src);
@@ -280,17 +301,19 @@ void Graph::showAdj(ostream& out) const {
     }
 }
 
-void Graph::showGraphInfo(std::ostream &out) const {
+void Graph::showGraphInfo(bool showEdgeDistrib, std::ostream &out) const {
     out <<
     "Graph:\n"
     "N = " << N << ", E = " << edgeNum() << "\n"
     "Max degree = " << maxDegree() << "\n"
-    "\n"
-    "Degree distribution:\n";
-    auto distrib = getDegreeDistribution();
-    for (auto i = N - 1; i > 0; --i)
-        if (distrib[i].size() != 0)
-            out << i << "\t" << distrib[i].size() << "\n";
+    "\n";
+    if (showEdgeDistrib) {
+        out << "Degree distribution:\n";
+        auto distrib = getDegreeDistribution();
+        for (auto i = N - 1; i > 0; --i)
+            if (distrib[i].size() != 0)
+                out << i << "\t" << distrib[i].size() << "\n";
+    }
     out << flush;
 }
 

@@ -54,9 +54,9 @@ public:
     struct DecomposeTree2Node {
         // The vertices are in order (if it is a cycle)
         std::vector<std::size_t> vertices;
-        // anVer[i] == j means vertices[i] is annotated by child j (j == -1 means not annotated)
+        // anVer[i] == j means vertices[i] is annotated by child of index j (j == -1 means not annotated)
         std::vector<int> annotatedVertices;
-        // anEd[i] == j means edge (vertices[i], vertices[i+1]) is annotated by child j (j == -1 means not annotated)
+        // anEd[i] == j means edge (vertices[i], vertices[i+1]) is annotated by child of index j (j == -1 means not annotated)
         std::vector<int> annotatedEdges;
 
         int parent;
@@ -107,6 +107,7 @@ public:
     static std::unique_ptr<Graph> fromTypeString(const std::string& typeString);
     static std::unique_ptr<Graph> createStar(std::size_t n);
     static std::unique_ptr<Graph> createCycle(std::size_t n);
+    static std::unique_ptr<Graph> createComplete(std::size_t n);
     static std::unique_ptr<Graph> createTree(std::size_t depth, std::size_t width);
     static std::unique_ptr<Graph> createTreeH(const std::vector<std::size_t>& widths);
     static std::unique_ptr<Graph> createER(std::size_t n, std::size_t m);
@@ -125,6 +126,7 @@ public:
     const std::vector<Vertex>& getVertices() const { return vertices; }
     
     void addEdge(std::size_t src, std::size_t dst);
+    void addEdges(const std::initializer_list<std::size_t>& srcs, const std::initializer_list<std::size_t>& dsts);
     void removeEdge(std::size_t src, std::size_t dst);
     bool haveEdge(std::size_t src, std::size_t dst) const;
 
@@ -133,7 +135,7 @@ public:
 
     /// Show adjacent matrix.
     void showAdj(std::ostream& out = std::cout) const;
-    void showGraphInfo(std::ostream& out = std::cout) const;
+    void showGraphInfo(bool showEdgeDistrib = false, std::ostream& out = std::cout) const;
 
     /// Get the degree distribution of the graph.
     std::vector<std::unordered_set<std::size_t>> getDegreeDistribution() const;
@@ -217,13 +219,19 @@ private:
     void contractCycle1(std::size_t bNode);
     void contractCycle2(std::size_t bNode1, std::size_t bNode2);
 
-    void calculateNode_PS(const Graph& Q, DecomposeTree2Node& node, const std::vector<DecomposeTree2Node>& decompose) const;
+    void calculateNode_PS_raw(const Graph &Q, DecomposeTree2Node &node,
+                              const std::vector<DecomposeTree2Node> &decompose) const;
+    void calculateNode_PS(const Graph &Q, DecomposeTree2Node &node,
+                              const std::vector<DecomposeTree2Node> &decompose) const;
+    void calculateNode_DB(const Graph& Q, DecomposeTree2Node& node, const std::vector<DecomposeTree2Node>& decompose) const;
 
-    /// PS Algorithm.
-    void pathSplittingAlgorithm(const DecomposeTree2Node& node) const;
+    void nodeJoin(DecomposeTree2Node &node, const std::vector<DecomposeTree2Node> &decompose, bool direction,
+                  std::size_t p, std::size_t k, std::size_t L, std::size_t j,
+                  std::vector<decltype(node.count)>& pathCounts) const;
 
-    /// DB Algorithm.
-    void degreeBasedAlgorithm(const DecomposeTree2Node& node) const;
+    void edgeJoin(DecomposeTree2Node &node, const std::vector<DecomposeTree2Node> &decompose, bool direction,
+                  std::size_t p, std::size_t k, std::size_t L, std::size_t j,
+                  std::vector<decltype(node.count)> &pathCounts) const;
 
     /* ====================================================================== */
 
