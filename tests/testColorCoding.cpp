@@ -17,8 +17,8 @@ int main(int argc, char* argv[]) {
 #include "../config.txt"
     ;
 
-    string N = "10000";
-    string p = "2.5";
+    string N = "100000";
+    string p = "2.7";
 
     if (argc >= 2)
         N = argv[1];
