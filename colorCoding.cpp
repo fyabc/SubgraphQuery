@@ -286,6 +286,7 @@ mpz_class Graph::getSubgraphNumber_2Treewidth_Decompose(const Graph& Q, vector<D
 
         for (const auto& countV: decompose[0].count) {
             for (const auto& countVC: countV.second) {
+//                assert(nnz(countVC.first) == k);
                 result += countVC.second;
 //                cout << countVC.second << endl;
             }
@@ -394,8 +395,8 @@ void Graph::calculateNode_PS_raw(const Graph &Q, DecomposeTree2Node &node, const
     }
 }
 
-void Graph::nodeJoin(DecomposeTree2Node &node, const vector<DecomposeTree2Node> &decompose, bool direction,
-              size_t p, size_t k, size_t L, size_t j, vector<decltype(node.count)>& pathCounts) const {
+void Graph::nodeJoin(const DecomposeTree2Node& node, const vector<DecomposeTree2Node>& decompose, bool direction,
+                     size_t p, size_t k, size_t L, size_t j, vector<decltype(node.count)>& pathCounts) const {
     auto aj = direction ? lPlus(p, j) : lMinus(p, j);
 
     if (node.annotatedVertices[aj] != -1) {
@@ -403,14 +404,17 @@ void Graph::nodeJoin(DecomposeTree2Node &node, const vector<DecomposeTree2Node> 
         auto& countB = decompose[node.annotatedVertices[aj]].count;
         for (const auto& countUV: pathCounts[j - 1]) {
             auto u = countUV.first[0], v = countUV.first[1];
+            auto c_v = makeSet(k, {getColor(v)});
+            auto uv = {u, v};
+
             for (const auto& countUVC1: countUV.second) {
                 const auto& c1 = countUVC1.first;
 
                 // for each (v, c2) with Count[v, c2| B] != 0
                 for (const auto& countVC2: const_cast<decltype(node.count)&>(countB)[{v}]) {
                     const auto& c2 = countVC2.first;
-                    if ((c1 & c2) == makeSet(k, {getColor(v)})) {
-                        pathCounts[j - 1][{u, v}][c1 | c2] += countUVC1.second * countVC2.second;
+                    if ((c1 & c2) == c_v) {
+                        pathCounts[j - 1][uv][c1 | c2] += countUVC1.second * countVC2.second;
                     }
                 }
             }
@@ -418,15 +422,17 @@ void Graph::nodeJoin(DecomposeTree2Node &node, const vector<DecomposeTree2Node> 
     }
 }
 
-void Graph::edgeJoin(DecomposeTree2Node &node, const vector<DecomposeTree2Node> &decompose, bool direction,
-                     size_t p, size_t k, size_t L, size_t j, vector<decltype(node.count)> &pathCounts) const {
-    auto aj = direction ? lPlus(p, j) : lMinus(p, j);
+void Graph::edgeJoin(const DecomposeTree2Node& node, const vector<DecomposeTree2Node>& decompose, bool direction,
+                     size_t p, size_t k, size_t L, size_t j, vector<decltype(node.count)>& pathCounts) const {
+    auto aj = direction ? lPlus(p, j) : lMinus(p, j + 1);
 
     if (node.annotatedEdges[aj] != -1) {
         auto& countB = decompose[node.annotatedEdges[aj]].count;
         // for each (u, v, c1) with Count[u, v, c1| P(p, p+j)+] != 0
         for (const auto& countUV: pathCounts[j - 1]) {
             auto u = countUV.first[0], v = countUV.first[1];
+            auto c_v = makeSet(k, {getColor(v)});
+
             for (const auto& countUVC1: countUV.second) {
                 const auto& c1 = countUVC1.first;
 
@@ -435,11 +441,13 @@ void Graph::edgeJoin(DecomposeTree2Node &node, const vector<DecomposeTree2Node> 
                     if (countVW.first[0] != v)
                         continue;
                     auto w = countVW.first[1];
+                    auto uw = {u, w};
+
                     for (const auto& countVWC2: countVW.second) {
                         const auto& c2 = countVWC2.first;
 
-                        if ((c1 & c2) == makeSet(k, {getColor(v)})) {
-                            pathCounts[j][{u, w}][c1 | c2] += countUVC1.second * countVWC2.second;
+                        if ((c1 & c2) == c_v) {
+                            pathCounts[j][uw][c1 | c2] += countUVC1.second * countVWC2.second;
                         }
                     }
                 }
@@ -478,41 +486,75 @@ void Graph::calculateNode_PS(const Graph &Q, DecomposeTree2Node &node,
         auto L = node.vertices.size();
         auto p = node.bNodeIndexes[0], q = node.bNodeIndexes[1];
 
+        // positiveCounts[i] = Count[*,*| P(p, p+i+1 % L)+]
+        // negativeCounts[i] = Count[*,*| P(p, p-i-1 % L)-]
         vector<decltype(node.count)> positiveCounts(q - p), negativeCounts(p + L - q);
 
-        // Initialize the counts
-        if (node.annotatedEdges[p] != -1) {
-            // edge (p, p+1) is annotated
-            positiveCounts[0] = decompose[node.annotatedEdges[p]].count;
-            negativeCounts[0] = decompose[node.annotatedEdges[p]].count;
-        }
-        else {
-            // not annotated, as common
-            for (size_t u = 0; u < N; ++u) {
-                for (const auto& v: getAdj(u)) {
-//                if (u > v)
-//                    continue;
-                    if (getColor(u) == getColor(v))
-                        continue;
-                    positiveCounts[0][{u, v}][makeSet(k, {getColor(u), getColor(v)})] = 1;
-                    negativeCounts[0][{u, v}][makeSet(k, {getColor(u), getColor(v)})] = 1;
+#pragma omp parallel sections default(shared)
+        {
+#pragma omp section
+            // Initialize the counts
+            if (node.annotatedEdges[p] != -1) {
+                // edge (p, p+1) is annotated
+                positiveCounts[0] = decompose[node.annotatedEdges[p]].count;
+            }
+            else {
+                // not annotated, as common
+                for (size_t u = 0; u < N; ++u) {
+                    for (const auto& v: getAdj(u)) {
+                        if (getColor(u) == getColor(v))
+                            continue;
+                        positiveCounts[0][{u, v}][makeSet(k, {getColor(u), getColor(v)})] = 1;
+                    }
+                }
+            }
+
+#pragma omp section
+            // Initialize the counts
+            if (node.annotatedEdges[lMinus(p, 1)] != -1) {
+                // edge (p, p-1) is annotated
+                negativeCounts[0] = decompose[node.annotatedEdges[lMinus(p, 1)]].count;
+            }
+            else {
+                // not annotated, as common
+                for (size_t u = 0; u < N; ++u) {
+                    for (const auto& v: getAdj(u)) {
+                        if (getColor(u) == getColor(v))
+                            continue;
+                        negativeCounts[0][{u, v}][makeSet(k, {getColor(u), getColor(v)})] = 1;
+                    }
                 }
             }
         }
 
-        for (size_t j = 1; j < positiveCounts.size(); ++j) {
-//            dbgTime(); cout << "{" << j << "}" << flush;
-            nodeJoin(node, decompose, true, p, k, L, j, positiveCounts);
-            edgeJoin(node, decompose, true, p, k, L, j, positiveCounts);
-        }
-//        nodeJoin(node, decompose, true, p, k, L, positiveCounts.size() - 1, positiveCounts);
+        dbgTime("[^", "^]");
 
-        for (size_t j = 1; j < negativeCounts.size(); ++j) {
+#pragma omp parallel sections default(shared)
+        {
+#pragma omp section
+            {
+                for (size_t j = 1; j <= positiveCounts.size(); ++j) {
 //            dbgTime(); cout << "{" << j << "}" << flush;
-            nodeJoin(node, decompose, false, p, k, L, j, negativeCounts);
-            edgeJoin(node, decompose, false, p, k, L, j, negativeCounts);
+                    nodeJoin(node, decompose, true, p, k, L, j, positiveCounts);
+                    if (j != positiveCounts.size())
+                        edgeJoin(node, decompose, true, p, k, L, j, positiveCounts);
+                }
+                dbgTime("[a", "]");
+            }
+//            dbgTime("[p", "p]");
+
+#pragma omp section
+            {
+                for (size_t j = 1; j <= negativeCounts.size(); ++j) {
+//            dbgTime(); cout << "{" << j << "}" << flush;
+                    nodeJoin(node, decompose, false, p, k, L, j, negativeCounts);
+                    if (j != negativeCounts.size())
+                        edgeJoin(node, decompose, false, p, k, L, j, negativeCounts);
+                }
+                dbgTime("[b", "]");
+            }
         }
-//        nodeJoin(node, decompose, false, p, k, L, negativeCounts.size() - 1, negativeCounts);
+        dbgTime("[$", "$]");
 
         // computing projection table for the cycle.
         const auto& positiveCount = positiveCounts.back();
@@ -522,11 +564,12 @@ void Graph::calculateNode_PS(const Graph &Q, DecomposeTree2Node &node,
         // for each (u, v, c2) with Count[u, v, c2|P-] != 0
         for (const auto& countPUV: positiveCount) {
             auto u = countPUV.first[0], v = countPUV.first[1];
+            auto c_uv = makeSet(k, {getColor(u), getColor(v)});
             for (const auto& countPUVC1: countPUV.second) {
                 const auto& c1 = countPUVC1.first;
                 for (const auto& countNUVC2: negativeCount[countPUV.first]) {
                     const auto& c2 = countNUVC2.first;
-                    if ((c1 & c2) == makeSet(k, {getColor(u), getColor(v)})) {
+                    if ((c1 & c2) == c_uv) {
 //                        cout << "["; disp(c1); disp(c2); cout << "]";
 //                        cout << "(" << u << " " << getColor(u) << "|" << v << " " << getColor(v) << ")" << endl;
                         node.count[countPUV.first][c1 | c2] += countPUVC1.second * countNUVC2.second;
@@ -594,7 +637,7 @@ void Graph::calculateNode_DB(const Graph &Q, DecomposeTree2Node &node, const std
                                 if ((h + j + 1) % L == q)
                                     verEntry[3] = w;
 
-                                positiveCounts[j][verEntry][addColor(colorSet, getColor(w))] += positiveCounts[j - 1][countUV.first][colorSet];
+                                positiveCounts[j][verEntry][addColor(colorSet, getColor(w))] += countUVC.second;
                             }
                         }
                     }

@@ -32,30 +32,9 @@ int main(int argc, char* argv[]) {
 //    auto pG = Graph::createComplete(50);
 
     // A Sample Query.
-    Graph Q(5);
-    Q.addEdge(0, 1); Q.addEdge(0, 3); Q.addEdge(1, 2); Q.addEdge(2, 3); Q.addEdge(2, 4); Q.addEdge(3, 4);
-
-    vector<Graph::DecomposeTree2Node> decompose(2);
-    decompose[0].vertices = {0, 1, 2, 3};
-    decompose[0].children = {1};
-    decompose[0].annotatedVertices = {-1, -1, -1, -1};
-    decompose[0].annotatedEdges = {-1, -1, 1, -1};
-    decompose[0].bNodeIndexes = {0, 1};
-
-    decompose[1].vertices = {2, 4, 3};
-    decompose[1].children = {};
-    decompose[1].annotatedVertices = {-1, -1, -1};
-    decompose[1].annotatedEdges = {-1, -1, -1};
-    decompose[1].bNodeIndexes = {0, 2};
-
-//    Graph Q = *Graph::createCycle(3);
-//
-//    vector<Graph::DecomposeTree2Node> decompose(1);
-//    decompose[0].vertices = {0, 1, 2};
-//    decompose[0].children = {};
-//    decompose[0].annotatedVertices = {-1, -1, -1};
-//    decompose[0].annotatedEdges = {-1, -1, -1};
-//    decompose[0].bNodeIndexes = {0, 2};
+//#include "../decompositions/cycle3.txt"
+//#include "../decompositions/2cycle5_a.txt"
+#include "../decompositions/2cycle5_b.txt"
 
     clock_t timeBefore, timeAfter;
     mpz_class result;
@@ -63,7 +42,7 @@ int main(int argc, char* argv[]) {
 //    cout << "G: Power-law(" << N << ", " << p << "), N = " << N << ", E = " << pG->edgeNum() << endl;
     pG->showGraphInfo();
 
-    for (auto i = 1; i <= 10; ++i) {
+    for (auto i = 1; i <= 5; ++i) {
         {
             timeBefore = clock();
             result = pG->getSubgraphNumber_2Treewidth_Decompose(Q, decompose, 1);
@@ -91,16 +70,16 @@ int main(int argc, char* argv[]) {
 //            cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
 //        }
 //
-//        {
-//            auto testNum = 10000;
-//
-//            timeBefore = clock();
-//            result = pG->testSubgraph(Q, testNum) * permute(pG->size(), Q.size()) / testNum;
-//            timeAfter = clock();
-//
-//            cout << "[Sample]       " << result << " " << result.get_str(10).size() << endl;
-//            cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
-//        }
+        {
+            auto testNum = 10000;
+
+            timeBefore = clock();
+            result = pG->testSubgraph(Q, testNum) * permute(pG->size(), Q.size()) / testNum;
+            timeAfter = clock();
+
+            cout << "[Sample]       " << result << " " << result.get_str(10).size() << endl;
+            cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
+        }
     }
 
     return 0;

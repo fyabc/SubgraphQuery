@@ -54,15 +54,13 @@ public:
     struct DecomposeTree2Node {
         // The vertices are in order (if it is a cycle)
         std::vector<std::size_t> vertices;
+        // children of the node.
+        std::vector<int> children;
+
         // anVer[i] == j means vertices[i] is annotated by child of index j (j == -1 means not annotated)
         std::vector<int> annotatedVertices;
         // anEd[i] == j means edge (vertices[i], vertices[i+1]) is annotated by child of index j (j == -1 means not annotated)
         std::vector<int> annotatedEdges;
-
-        int parent;
-
-        // children of the node.
-        std::vector<int> children;
 
         // Indexes of Boundary Nodes in vertices.
         // 1 or 2 nodes.
@@ -225,13 +223,13 @@ private:
                               const std::vector<DecomposeTree2Node> &decompose) const;
     void calculateNode_DB(const Graph& Q, DecomposeTree2Node& node, const std::vector<DecomposeTree2Node>& decompose) const;
 
-    void nodeJoin(DecomposeTree2Node &node, const std::vector<DecomposeTree2Node> &decompose, bool direction,
+    void nodeJoin(const DecomposeTree2Node& node, const std::vector<DecomposeTree2Node>& decompose, bool direction,
                   std::size_t p, std::size_t k, std::size_t L, std::size_t j,
                   std::vector<decltype(node.count)>& pathCounts) const;
 
-    void edgeJoin(DecomposeTree2Node &node, const std::vector<DecomposeTree2Node> &decompose, bool direction,
+    void edgeJoin(const DecomposeTree2Node& node, const std::vector<DecomposeTree2Node>& decompose, bool direction,
                   std::size_t p, std::size_t k, std::size_t L, std::size_t j,
-                  std::vector<decltype(node.count)> &pathCounts) const;
+                  std::vector<decltype(node.count)>& pathCounts) const;
 
     /* ====================================================================== */
 
