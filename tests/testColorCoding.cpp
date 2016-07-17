@@ -45,6 +45,8 @@ int main(int argc, char* argv[]) {
     const auto& Q = *(QD.first);
     auto decompose = QD.second;
 
+    logger("Template Name: " + QName + "\n");
+
     // Check for correction.
     logger("Check complete graph (N = 50) for correction:");
     auto C50 = Graph::createComplete(50);
