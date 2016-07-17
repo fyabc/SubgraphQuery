@@ -6,6 +6,7 @@
 #include "utils.h"
 
 #include <fstream>
+#include <sstream>
 #include <queue>
 #include <unordered_map>
 #include <cassert>
@@ -299,6 +300,78 @@ mpz_class Graph::getSubgraphNumber_2Treewidth_Decompose(const Graph& Q, vector<D
 std::vector<Graph::DecomposeTree2Node> Graph::tree2Decompose() const {
     auto Q = *this;
     vector<DecomposeTree2Node> result;
+
+    return result;
+}
+
+pair<unique_ptr<Graph>, vector<Graph::DecomposeTree2Node>> Graph::readQueryWithDecompose(const string& inFileName) {
+    string selfFileName(__FILE__);
+    {
+        size_t i = selfFileName.size() - 1;
+        for (; i != 0; --i) {
+            if (selfFileName[i] == '/' || selfFileName[i] == '\\')
+                break;
+        }
+        selfFileName.erase(i + 1);
+    }
+
+
+    ifstream inFile((selfFileName + "decompositions/" + inFileName).c_str());
+
+    size_t k;
+    inFile >> k;
+
+    pair<unique_ptr<Graph>, vector<DecomposeTree2Node>> result(unique_ptr<Graph>(new Graph(k)), vector<DecomposeTree2Node>());
+
+    int src, dst;
+    while (inFile >> src >> dst, src != -1) {
+        result.first->addEdge((size_t)src, (size_t)dst);
+    }
+
+    string line;
+    stringstream sLine;
+    size_t decomposeSize;
+    inFile >> decomposeSize; getline(inFile, line); // eat the end of this line
+
+    for (size_t i = 0; i < decomposeSize; ++i) {
+        int temp;
+        size_t tempU;
+
+        result.second.push_back(DecomposeTree2Node());
+        DecomposeTree2Node& node = result.second.back();
+
+        // vertices
+        getline(inFile, line);
+        sLine.clear(); sLine.str(line);     // clear() is necessary to clear all bad bits.
+        while (sLine >> tempU)
+            node.vertices.push_back(tempU);
+
+        // children
+        getline(inFile, line);
+        sLine.clear(); sLine.str(line);
+        while (sLine >> tempU)
+            node.children.push_back(tempU);
+
+        // annotatedVertices
+        getline(inFile, line);
+        sLine.clear(); sLine.str(line);
+        while (sLine >> temp)
+            node.annotatedVertices.push_back(temp);
+
+        // annotatedEdges
+        getline(inFile, line);
+        sLine.clear(); sLine.str(line);
+        while (sLine >> temp)
+            node.annotatedEdges.push_back(temp);
+
+        // bNodeIndexes
+        getline(inFile, line);
+        sLine.clear(); sLine.str(line);
+        while (sLine >> tempU)
+            node.bNodeIndexes.push_back(tempU);
+    }
+
+    inFile.close();
 
     return result;
 }

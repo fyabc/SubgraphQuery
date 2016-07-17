@@ -211,6 +211,9 @@ public:
     /// [NOTE]: the graph must be have treewidth <= 2.
     std::vector<DecomposeTree2Node> tree2Decompose() const;
 
+    static std::pair<std::unique_ptr<Graph>, std::vector<DecomposeTree2Node>> readQueryWithDecompose(
+            const std::string& inFileName);
+
 private:
     /// Contract a leaf or cycle from the graph.
     void contractLeaf(std::size_t bNode, std::vector<Graph::DecomposeTree2Node>& decompose);

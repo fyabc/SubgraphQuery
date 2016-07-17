@@ -12,7 +12,18 @@
 #include <ctime>
 
 inline void dbgTime(const char* left = "[", const char* right = "]") {
+//#define DBG_TIME
+#ifdef DBG_TIME
     std::cout << left << (double)clock() / CLOCKS_PER_SEC << right << std::endl;
+#endif
+}
+
+inline void logger(std::string msg = "", std::ostream& out = std::cout, bool newLine = true) {
+    out << msg;
+    if (newLine)
+        out << std::endl;
+    else
+        out << std::flush;
 }
 
 inline std::size_t urand() {

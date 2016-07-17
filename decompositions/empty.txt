@@ -1,0 +1,14 @@
+Graph Q();
+Q.addEdges({},
+           {});
+
+vector<Graph::DecomposeTree2Node> decompose =
+    {
+        {
+            {},
+            {},
+            {},
+            {},
+            {},
+        },
+    };
