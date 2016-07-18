@@ -26,6 +26,8 @@ class Graph {
 
     struct Vertex {
         std::size_t degree = 0;
+
+        // all adjacent vertices.
         std::unordered_set<std::size_t> adj = std::unordered_set<std::size_t>();
         mutable std::size_t color;
 

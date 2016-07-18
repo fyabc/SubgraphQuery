@@ -493,7 +493,7 @@ void Graph::calculateNode_PS(const Graph &Q, DecomposeTree2Node &node,
                         for (const auto& countVC2: countB[tempV]) {
                             const auto& c2 = countVC2.first;
                             if (!haveIntersect(c, c2)) {
-                                node.count[{v}][c | c2] += countUC.second * countVC2.second;
+                                node.count[tempV][c | c2] += countUC.second * countVC2.second;
                             }
                         }
                     }
@@ -517,6 +517,7 @@ void Graph::calculateNode_PS(const Graph &Q, DecomposeTree2Node &node,
     else if (node.bNodeIndexes.size() == 1) {
         // 1 boundary cycle node
         // TODO: to be implemented
+
     }
     else {
         // 2 boundary cycle node
