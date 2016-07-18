@@ -248,6 +248,7 @@ private:
 public:
     /// Full tree query.
     /// Using color coding.
+    /// TODO: to be implemented
     mpz_class getSubgraphNumber_FullTree(const std::vector<std::size_t>& branches,
                                          int sampleTimes = 1) const;
 

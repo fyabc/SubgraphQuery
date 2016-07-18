@@ -213,7 +213,7 @@ mpz_class Graph::getSubgraphNumber_Tree(const Graph& Q, int sampleTimes) const {
             // if s is a leaf node (only one vertex), just set boundary values.
             if (decompose[s].activeChild == -1) {
                 for (size_t v = 0; v < N; ++v)
-                    DP[make_pair(s, v)][makeSet(k, {vertices[v].color})] = 1;
+                    DP[make_pair(s, v)][makeSet(k, {getColor(v)})] = 1;
                 continue;
             }
 
@@ -222,7 +222,7 @@ mpz_class Graph::getSubgraphNumber_Tree(const Graph& Q, int sampleTimes) const {
                 auto a = decompose[s].activeChild, p = decompose[s].passiveChild;
 
                 // for all v's neighbour u
-                for (const auto& u: vertices[v].adj) {
+                for (const auto& u: getAdj(v)) {
                     const auto& av = DP[make_pair(a, v)];
                     const auto& pu = DP[make_pair(p, u)];
 
@@ -394,7 +394,7 @@ void Graph::nodeJoin(const DecomposeTree2Node& node, const vector<DecomposeTree2
 
     if (node.annotatedVertices[aj] != -1) {
         // for each (u, v, c1) with Count[u, v, c1| P(p, p+j)+] != 0
-        auto& countB = decompose[node.annotatedVertices[aj]].count;
+        decltype(node.count)& countB = const_cast<decltype(node.count)&>(decompose[node.annotatedVertices[aj]].count);
         for (const auto& countUV: pathCounts[j - 1]) {
             auto u = countUV.first[0], v = countUV.first[1];
             auto c_v = makeSet(k, {getColor(v)});
@@ -404,7 +404,7 @@ void Graph::nodeJoin(const DecomposeTree2Node& node, const vector<DecomposeTree2
                 const auto& c1 = countUVC1.first;
 
                 // for each (v, c2) with Count[v, c2| B] != 0
-                for (const auto& countVC2: const_cast<decltype(node.count)&>(countB)[{v}]) {
+                for (const auto& countVC2: countB[{v}]) {
                     const auto& c2 = countVC2.first;
                     if ((c1 & c2) == c_v) {
                         pathCounts[j - 1][uv][c1 | c2] += countUVC1.second * countVC2.second;
@@ -469,8 +469,50 @@ void Graph::calculateNode_PS(const Graph &Q, DecomposeTree2Node &node,
 
     if (node.vertices.size() == 2) {
         // leaf node
-        // leaf node cannot have annotated edge.
-        // TODO: to be implemented
+        auto p = node.bNodeIndexes[0];
+        size_t q = 1 - p;
+        decltype(node.count) count;
+
+        if (node.annotatedVertices[q] != -1) {
+            count = decompose[node.annotatedVertices[q]].count;
+        }
+        else {
+            for (size_t u = 0; u < N; ++u) {
+                count[{u}][makeSet(k, {getColor(u)})] = 1;
+            }
+        }
+
+        if (node.annotatedVertices[p] != -1) {
+            decltype(node.count)& countB = const_cast<decltype(node.count)&>(decompose[node.annotatedVertices[p]].count);
+            for (const auto& countU: count) {
+                auto u = countU.first[0];
+                for (const auto& countUC: countU.second) {
+                    const auto& c = countUC.first;
+                    for (auto v: getAdj(u)) {
+                        auto tempV = {v};
+                        for (const auto& countVC2: countB[tempV]) {
+                            const auto& c2 = countVC2.first;
+                            if (!haveIntersect(c, c2)) {
+                                node.count[{v}][c | c2] += countUC.second * countVC2.second;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            for (const auto& countU: count) {
+                auto u = countU.first[0];
+                for (const auto& countUC: countU.second) {
+                    const auto& c = countUC.first;
+                    for (auto v: getAdj(u)) {
+                        if (!c[getColor(v)]) {
+                            node.count[{v}][addColor(c, getColor(v))] += countUC.second;
+                        }
+                    }
+                }
+            }
+        }
     }
     else if (node.bNodeIndexes.size() == 1) {
         // 1 boundary cycle node

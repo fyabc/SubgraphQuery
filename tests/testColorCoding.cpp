@@ -21,8 +21,8 @@ int main(int argc, char* argv[]) {
     auto path = getDataPath();
 
     string N = "10000";
-    string p = "2.6";
-    string QName = "brain3.qd";
+    string p = "2.5";
+    string QName = "wiki.qd";
 
     if (argc >= 2)
         N = argv[1];
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
     auto testTimes = 30;
 
-#if 0
+#ifndef _OPENMP
     mpz_class total(0);
     for (auto i = 1; i <= testTimes; ++i) {
 		cerr << "Test Time " << i << " (Total " << testTimes << ")" << endl;
@@ -85,9 +85,7 @@ int main(int argc, char* argv[]) {
     }
 #else
 
-#ifdef _OPENMP
     omp_set_num_threads(omp_get_num_procs() - 1);
-#endif
 
 #pragma omp parallel for default(shared)
     for (int i = 1; i <= testTimes; ++i) {
