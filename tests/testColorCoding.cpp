@@ -95,9 +95,10 @@ int main(int argc, char* argv[]) {
         cerr << ss.str() << flush;
 
         auto decomposeIn = decompose;
+		auto GIn = *pG;
 
         auto timeBefore = clock();
-        auto result = pG->getSubgraphNumber_2Treewidth_Decompose(Q, decomposeIn, 1);
+        auto result = GIn.getSubgraphNumber_2Treewidth_Decompose(Q, decomposeIn, 1);
         auto timeAfter = clock();
 
         ss.clear(); ss.str("");
