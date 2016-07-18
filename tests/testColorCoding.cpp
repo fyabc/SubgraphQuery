@@ -5,8 +5,13 @@
 #include "../graph.h"
 #include "../utils.h"
 
+#include <sstream>
 #include <fstream>
 #include <ctime>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 using namespace std;
 
@@ -45,16 +50,17 @@ int main(int argc, char* argv[]) {
     const auto& Q = *(QD.first);
     auto decompose = QD.second;
 
+	cerr << "Begin Testing... Current Time is " << (double)clock() / CLOCKS_PER_SEC << "s" << endl;
     logger("Template Name: " + QName + "\n");
 
     // Check for correction.
     logger("Check complete graph (N = 50) for correction:");
     auto C50 = Graph::createComplete(50);
-    auto testNum = 10000;
-    mpz_class resultS = C50->testSubgraph(Q, testNum) * permute(C50->size(), Q.size()) / testNum;
-    cout << "[Sample]       " << resultS << " " << resultS.get_str(10).size() << endl;
+    mpz_class resultS = permute(C50->size(), Q.size());
+	cout << "[Calculate]    " << resultS << " " << resultS.get_str(10).size() << endl;
 
     for (auto i = 1; i <= 3; ++i) {
+		cerr << "Check Time " << i << "(Total " << 3 << ")" << endl;
         auto resultC = C50->getSubgraphNumber_2Treewidth_Decompose(Q, decompose, 1);
         cout << "[Color Coding] " << resultC << " " << resultC.get_str(10).size() << endl;
     }
@@ -67,10 +73,13 @@ int main(int argc, char* argv[]) {
 
     logger();
 
-    auto testTimes = 25;
+    auto testTimes = 30;
 
+#if 0
     mpz_class total(0);
-    for (auto i = 1; i < testTimes; ++i) {
+    for (auto i = 1; i <= testTimes; ++i) {
+		cerr << "Test Time " << i << " (Total " << testTimes << ")" << endl;
+
         auto timeBefore = clock();
         auto result = pG->getSubgraphNumber_2Treewidth_Decompose(Q, decompose, 1);
         auto timeAfter = clock();
@@ -81,6 +90,32 @@ int main(int argc, char* argv[]) {
         mpz_class avg = total / i;
         cout << "Average: " << avg << " " << avg.get_str(10).size() << endl;
     }
+#else
 
-    return 0;
+#ifdef _OPENMP
+	omp_set_num_threads(omp_get_num_procs() - 1);
+#endif
+
+#pragma omp parallel for default(shared)
+	for (int i = 1; i <= testTimes; ++i) {
+		stringstream ss;
+
+		ss << "Test Time " << i << " (Total " << testTimes << ")" << endl;
+		cerr << ss.str() << flush;
+
+		auto decomposeIn = decompose;
+
+        auto timeBefore = clock();
+        auto result = pG->getSubgraphNumber_2Treewidth_Decompose(Q, decomposeIn, 1);
+        auto timeAfter = clock();
+
+		ss.clear(); ss.str("");
+        ss << "[Color Coding] " << result << " " << result.get_str(10).size() << endl;
+        ss << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
+		cout << ss.str() << flush;
+	}
+#endif
+	cerr << "End Testing... Current Time is " << (double)clock() / CLOCKS_PER_SEC << "s" << endl;
+    
+	return 0;
 }
