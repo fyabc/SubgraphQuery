@@ -32,8 +32,6 @@ inline void randomSample(size_t N, size_t qSize, size_t *result) {
 
         iter_swap(all + rIndex, all + N - i - 1);
     }
-
-//    shuffle(all, all + N, default_random_engine());
 }
 
 } // anonymous namespace
@@ -55,7 +53,7 @@ bool Graph::contain(const size_t* ver, const Graph& Q) const {
     return true;
 }
 
-int Graph::testSubgraph(const Graph& Q, int sampleTimes) const {
+int Graph::sampleSubgraph(const Graph &Q, int sampleTimes) const {
     int result = 0;
 
     auto sample = new std::size_t[Q.size()];

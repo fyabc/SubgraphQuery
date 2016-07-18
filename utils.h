@@ -8,6 +8,7 @@
 #include <gmpxx.h>
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <unordered_map>
 #include <ctime>
 
@@ -101,6 +102,14 @@ inline void expRep(const mpz_class& val, std::ostream& out = std::cout) {
     auto rep = val.get_str(10);
     auto exp = int(rep.size() - 1);
     out << rep[0] << '.' << rep.substr(1, (std::size_t)std::min(2, exp)) << "E" << exp;
+}
+
+inline std::string getDataPath(const std::string& fileName = "../config.txt") {
+    std::ifstream inFile(fileName.c_str());
+    std::string result;
+    inFile >> result;
+    inFile.close();
+    return result;
 }
 
 #endif //SUBGRAPHQUERY_UTILS_H

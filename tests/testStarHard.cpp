@@ -10,9 +10,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    string path =
-#include "../config.txt"
-    ;
+    auto path = getDataPath();
 
     string N = "100000";
     string p = "2.8";

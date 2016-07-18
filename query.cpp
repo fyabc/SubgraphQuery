@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
         pQ = Graph::fromTypeString(optionArgs.qFileName);
     }
 
-    auto result = pG->testSubgraph(*pQ, optionArgs.sampleTimes);
+    auto result = pG->sampleSubgraph(*pQ, optionArgs.sampleTimes);
 
     if (optionArgs.loggerFileName != "") {
         ofstream loggerFile(optionArgs.loggerFileName.c_str(), ofstream::app);

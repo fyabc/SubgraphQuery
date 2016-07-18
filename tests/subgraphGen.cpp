@@ -3,6 +3,7 @@
 //
 
 #include "../graph.h"
+#include "../utils.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -10,9 +11,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    string path =
-#include "../config.txt"
-    ;
+    auto path = getDataPath();
 
     // generate 2d trees.
     size_t b1Max = 10;

@@ -149,11 +149,12 @@ private:
     /* ====================================================================== */
 
 private:
+    /// Test if G contains Q with vertices mapped by ver.
     bool contain(const std::size_t* ver, const Graph& Q) const;
 
 public:
     /// Do subgraph test for sampleTimes.
-    int testSubgraph(const Graph& Q, int sampleTimes = 1) const;
+    int sampleSubgraph(const Graph &Q, int sampleTimes = 1) const;
 
     /* ====================================================================== */
     /* ============================= Star Query ============================= */
@@ -182,6 +183,7 @@ public:
     mpz_class getSubgraphNumber_BF(const Graph& Q, int sampleTimes = 1) const;
 
 private:
+    /// Brute Force test method.
     void testPermutations(const Graph& Q, std::size_t *ver,
                           const std::vector<std::unordered_set<std::size_t>>& colorVertices,
                           std::size_t depth, mpz_class& result) const;
@@ -201,6 +203,8 @@ public:
 
     /// Graph query using color coding in paper [Subgraph Counting].
     /// Q must be a graph which treewidth <= 2.
+    /// Generate the decomposition, then compute with it.
+    /// TODO: to be implemented
     mpz_class getSubgraphNumber_2Treewidth(const Graph& Q, int sampleTimes = 1) const;
 
     /// 2 Treewidth query with decompose given.
@@ -209,21 +213,26 @@ public:
 
     /// Get the 2-treewidth decompose of graph.
     /// [NOTE]: the graph must be have treewidth <= 2.
+    // TODO: to be implemented
     std::vector<DecomposeTree2Node> tree2Decompose() const;
 
+    /// Read a Q and decomposition from a file.
     static std::pair<std::unique_ptr<Graph>, std::vector<DecomposeTree2Node>> readQueryWithDecompose(
             const std::string& inFileName);
 
 private:
     /// Contract a leaf or cycle from the graph.
+    /// TODO: to be implemented
     void contractLeaf(std::size_t bNode, std::vector<Graph::DecomposeTree2Node>& decompose);
     void contractCycle1(std::size_t bNode);
     void contractCycle2(std::size_t bNode1, std::size_t bNode2);
 
-    void calculateNode_PS_raw(const Graph &Q, DecomposeTree2Node &node,
-                              const std::vector<DecomposeTree2Node> &decompose) const;
+    /// PS Algorithm (See [Subgraph Counting]).
     void calculateNode_PS(const Graph &Q, DecomposeTree2Node &node,
                               const std::vector<DecomposeTree2Node> &decompose) const;
+
+    /// DB Algorithm (See [Subgraph Counting])
+    /// TODO: to be implemented
     void calculateNode_DB(const Graph& Q, DecomposeTree2Node& node, const std::vector<DecomposeTree2Node>& decompose) const;
 
     void nodeJoin(const DecomposeTree2Node& node, const std::vector<DecomposeTree2Node>& decompose, bool direction,

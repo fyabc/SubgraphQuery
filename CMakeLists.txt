@@ -20,7 +20,7 @@ endif()
 include_directories("/usr/local/include")
 link_directories("/usr/local/lib")
 
-add_library(graph colorCoding.cpp graphBase.cpp subgraphSample.cpp graph.h degTreeQuery.cpp easyQueries.cpp 2dFullTreeQuery.cpp)
+add_library(graph colorCoding.cpp graphBase.cpp subgraphSample.cpp graph.h easyQueries.cpp 2dFullTreeQuery.cpp)
 
 add_executable(query query.cpp)
 add_executable(testGraph test.cpp utils.h)

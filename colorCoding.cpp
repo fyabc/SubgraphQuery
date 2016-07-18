@@ -388,86 +388,6 @@ void Graph::contractCycle2(std::size_t bNode1, std::size_t bNode2) {
 
 }
 
-void Graph::calculateNode_PS_raw(const Graph &Q, DecomposeTree2Node &node, const vector<DecomposeTree2Node> &decompose) const {
-    auto k = Q.size();
-
-    if (node.vertices.size() == 2) {
-        // leaf node
-        // leaf node cannot have annotated edge.
-    }
-    else if (node.bNodeIndexes.size() == 1) {
-        // 1 boundary cycle node
-    }
-    else {
-        // 2 boundary cycle node
-        auto L = node.vertices.size();
-        auto p = node.bNodeIndexes[0], q = node.bNodeIndexes[1];
-
-        // Counts of P+ and P- (p, q are boundary nodes, p < q)
-        // P+ is path p, p+1, ..., q
-        // P- is path p, p-1, ..., q
-        // positiveCounts[i] = Count[*,*| P+(p, p+i+1 % L)]
-        // negativeCounts[i] = Count[*,*| P-(p, p-i-1 % L)]
-        vector<decltype(node.count)> pathCounts(max(q - p, p + L - q));
-
-        // for each edge (u, v) in G
-        for (size_t u = 0; u < N; ++u) {
-            for (const auto& v: getAdj(u)) {
-//                if (u > v)
-//                    continue;
-                if (getColor(u) == getColor(v))
-                    continue;
-                pathCounts[0][{u, v}][makeSet(k, {getColor(u), getColor(v)})] = 1;
-            }
-        }
-
-        // for all edges in path P+/P-.
-        // the calculate is same for P+/P-, so calculate the max one, then get another.
-
-        // [NOTE]: Most time cost here.
-        for (size_t j = 1; j < pathCounts.size(); ++j) {
-            dbgTime();
-
-            // for each (u, v, color_set) with Count[u, v, c] != 0
-            for (const auto& countUV: pathCounts[j - 1]) {
-                auto u = countUV.first[0], v = countUV.first[1];
-                for (const auto& countUVC: countUV.second) {
-                    const auto& colorSet = countUVC.first;
-
-                    // for each edge (v, w) in G with color(w) not in c
-                    for (auto w: getAdj(v)) {
-                        if (!colorSet[getColor(w)]) {
-//                            cout << nnz(colorSet) << "#" << j << endl;
-//                            cout << "{" << u << " " << getColor(u) << "|" << v << " " << getColor(v) << "}" << endl;
-                            pathCounts[j][{u, w}][addColor(colorSet, getColor(w))] += countUVC.second;
-                        }
-                    }
-                }
-            }
-        }
-        dbgTime();
-
-        // computing projection table for the cycle.
-        const auto& positiveCount = pathCounts.back();
-        auto& negativeCount = pathCounts.back();
-
-        // for each (u, v, c1) with Count[u, v, c1|P+] != 0
-        // for each (u, v, c2) with Count[u, v, c2|P-] != 0
-        for (const auto& countPUV: positiveCount) {
-            auto u = countPUV.first[0], v = countPUV.first[1];
-            for (const auto& countPUVC1: countPUV.second) {
-                const auto& c1 = countPUVC1.first;
-                for (const auto& countNUVC2: negativeCount[countPUV.first]) {
-                    const auto& c2 = countNUVC2.first;
-                    if ((c1 & c2) == makeSet(k, {getColor(u), getColor(v)})) {
-                        node.count[countPUV.first][c1 | c2] += countPUVC1.second * countNUVC2.second;
-                    }
-                }
-            }
-        }
-    }
-}
-
 void Graph::nodeJoin(const DecomposeTree2Node& node, const vector<DecomposeTree2Node>& decompose, bool direction,
                      size_t p, size_t k, size_t L, size_t j, vector<decltype(node.count)>& pathCounts) const {
     auto aj = direction ? lPlus(p, j) : lMinus(p, j);
@@ -550,9 +470,11 @@ void Graph::calculateNode_PS(const Graph &Q, DecomposeTree2Node &node,
     if (node.vertices.size() == 2) {
         // leaf node
         // leaf node cannot have annotated edge.
+        // TODO: to be implemented
     }
     else if (node.bNodeIndexes.size() == 1) {
         // 1 boundary cycle node
+        // TODO: to be implemented
     }
     else {
         // 2 boundary cycle node
@@ -600,34 +522,26 @@ void Graph::calculateNode_PS(const Graph &Q, DecomposeTree2Node &node,
             }
         }
 
-        dbgTime("[^", "^]");
-
 #pragma omp parallel sections default(shared)
         {
 #pragma omp section
             {
                 for (size_t j = 1; j <= positiveCounts.size(); ++j) {
-//            dbgTime(); cout << "{" << j << "}" << flush;
                     nodeJoin(node, decompose, true, p, k, L, j, positiveCounts);
                     if (j != positiveCounts.size())
                         edgeJoin(node, decompose, true, p, k, L, j, positiveCounts);
                 }
-                dbgTime("[a", "]");
             }
-//            dbgTime("[p", "p]");
 
 #pragma omp section
             {
                 for (size_t j = 1; j <= negativeCounts.size(); ++j) {
-//            dbgTime(); cout << "{" << j << "}" << flush;
                     nodeJoin(node, decompose, false, p, k, L, j, negativeCounts);
                     if (j != negativeCounts.size())
                         edgeJoin(node, decompose, false, p, k, L, j, negativeCounts);
                 }
-                dbgTime("[b", "]");
             }
         }
-        dbgTime("[$", "$]");
 
         // computing projection table for the cycle.
         const auto& positiveCount = positiveCounts.back();
@@ -643,8 +557,6 @@ void Graph::calculateNode_PS(const Graph &Q, DecomposeTree2Node &node,
                 for (const auto& countNUVC2: negativeCount[countPUV.first]) {
                     const auto& c2 = countNUVC2.first;
                     if ((c1 & c2) == c_uv) {
-//                        cout << "["; disp(c1); disp(c2); cout << "]";
-//                        cout << "(" << u << " " << getColor(u) << "|" << v << " " << getColor(v) << ")" << endl;
                         node.count[countPUV.first][c1 | c2] += countPUVC1.second * countNUVC2.second;
                     }
                 }
@@ -719,6 +631,8 @@ void Graph::calculateNode_DB(const Graph &Q, DecomposeTree2Node &node, const std
 
             // Procedure 2: Compute Count*[x, y, c| C, hi = h] for config (A)
             // for each (u, v, x, c1) with Count*[u, v, x, c1| P(h, d)+] != 0
+
+            // TODO: to be implemented
         }
     }
 }
