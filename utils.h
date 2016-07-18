@@ -104,12 +104,10 @@ inline void expRep(const mpz_class& val, std::ostream& out = std::cout) {
     out << rep[0] << '.' << rep.substr(1, (std::size_t)std::min(2, exp)) << "E" << exp;
 }
 
-inline std::string getDataPath(const std::string& fileName = "../config.txt") {
-    std::ifstream inFile(fileName.c_str());
-    std::string result;
-    inFile >> result;
-    inFile.close();
-    return result;
+inline std::string getDataPath() {
+    return
+#include "config.txt"
+    ;
 }
 
 #endif //SUBGRAPHQUERY_UTILS_H
