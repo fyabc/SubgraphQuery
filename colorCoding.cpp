@@ -408,9 +408,9 @@ pair<unique_ptr<Graph>, vector<Graph::DecomposeTree2Node>> Graph::genQD_Triangle
         decompose.push_back(
             {
                 {i - 2, i, i + 2},
-                {i + 2},
+                {int(i) + 2},
                 {-1, -1, -1},
-                {-1, i + 2, -1},
+                {-1, int(i) + 2, -1},
                 {0, 1},
             }
         );
