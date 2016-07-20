@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     logger("Information of G:");
     pG->showGraphInfo();
 
-    int testTimes = 10;
+    int testTimes = 3;
     mpz_class total(0);
     double totalTime = 0.0;
     for (int i = 1; i <= testTimes; ++i) {
