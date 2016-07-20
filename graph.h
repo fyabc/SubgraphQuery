@@ -218,9 +218,19 @@ public:
     // TODO: to be implemented
     std::vector<DecomposeTree2Node> tree2Decompose() const;
 
+    /// Generate or read some decompositions.
     /// Read a Q and decomposition from a file.
     static std::pair<std::unique_ptr<Graph>, std::vector<DecomposeTree2Node>> readQueryWithDecompose(
             const std::string& inFileName);
+
+    /// Generate a Q and decomposition with all triangles.
+    /// w >= 1.
+    /// triangle number = 2 * w + 1
+    /// Q.size = 2 * w + 3
+    static std::pair<std::unique_ptr<Graph>, std::vector<DecomposeTree2Node>> genQD_Triangles(std::size_t w);
+
+    /// Generate a Q and decomposition with a cycle.
+    static std::pair<std::unique_ptr<Graph>, std::vector<DecomposeTree2Node>> genQD_Cycle(std::size_t k);
 
 private:
     /// Contract a leaf or cycle from the graph.

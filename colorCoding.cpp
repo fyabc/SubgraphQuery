@@ -376,6 +376,69 @@ pair<unique_ptr<Graph>, vector<Graph::DecomposeTree2Node>> Graph::readQueryWithD
     return result;
 }
 
+pair<unique_ptr<Graph>, vector<Graph::DecomposeTree2Node>> Graph::genQD_Triangles(std::size_t w) {
+    auto k = 2 * w + 3;
+    pair<unique_ptr<Graph>, vector<DecomposeTree2Node>> result(unique_ptr<Graph>(new Graph(k)), vector<DecomposeTree2Node>());
+    auto& Q = *(result.first);
+    auto& decompose = result.second;
+
+    Q.addEdges({0, 0, 1},
+               {1, 3, 2});
+    auto addIf = [&Q](size_t src, size_t dst) {
+        if (src < Q.size() && dst < Q.size())
+            Q.addEdge(src, dst);
+    };
+    for (size_t i = 0; i < Q.size(); ++i) {
+        addIf(i, i + 2);
+        addIf(i, i + 4);
+    }
+    Q.showGraphInfo(false, cerr);
+
+    decompose.push_back(
+        {
+            {0, 1, 2},
+            {1, 2},
+            {-1, -1, -1},
+            {1, -1, 2},
+            {1, 2},
+        }
+    );
+
+    for (size_t i = 1; i <= 2 * w; ++i) {
+        decompose.push_back(
+            {
+                {i - 2, i, i + 2},
+                {i + 2},
+                {-1, -1, -1},
+                {-1, i + 2, -1},
+                {0, 1},
+            }
+        );
+    }
+    decompose[1].vertices[0] = 0;
+    decompose[2 * w - 1].children.clear();
+    decompose[2 * w - 1].annotatedEdges[1] = -1;
+    decompose[2 * w].children.clear();
+    decompose[2 * w].annotatedEdges[1] = -1;
+
+    return result;
+}
+
+pair<unique_ptr<Graph>, vector<Graph::DecomposeTree2Node>> Graph::genQD_Cycle(std::size_t k) {
+    pair<unique_ptr<Graph>, vector<DecomposeTree2Node>> result(createCycle(k), vector<DecomposeTree2Node>(1));
+    auto& decompose_0 = result.second[0];
+
+    for (size_t i = 0; i < k; ++i) {
+        decompose_0.vertices.push_back(i);
+        decompose_0.annotatedVertices.push_back(-1);
+        decompose_0.annotatedEdges.push_back(-1);
+    }
+    decompose_0.bNodeIndexes.push_back(0);
+    decompose_0.bNodeIndexes.push_back(k / 2);
+
+    return result;
+}
+
 void Graph::contractLeaf(std::size_t bNode, std::vector<Graph::DecomposeTree2Node>& decompose) {
 
 }
