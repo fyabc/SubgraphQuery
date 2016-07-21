@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     auto pEgonet = Graph::fromFileByNamedVertices(path + "/data/" + egonetFileName, "GeneratedEgonet");
 
     pEgonet->showGraphInfo();
-    pEgonet->showAdj();
+//    pEgonet->showAdj();
 
     vector<Graph::DecomposeTree2Node> decompose;
 
