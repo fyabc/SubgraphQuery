@@ -579,8 +579,58 @@ void Graph::calculateNode_PS(const Graph &Q, DecomposeTree2Node &node,
     }
     else if (node.bNodeIndexes.size() == 1) {
         // 1 boundary cycle node
-        // TODO: to be implemented
+        auto L = node.vertices.size();
+        auto p = node.bNodeIndexes[0], q = node.bNodeIndexes[0];
 
+        vector<decltype(node.count)> pathCounts(L - 1);
+
+        // Initialize the counts
+        if (node.annotatedEdges[p] != -1) {
+            // edge (p, p+1) is annotated
+            pathCounts[0] = decompose[node.annotatedEdges[p]].count;
+        }
+        else {
+            // not annotated, as common
+            for (size_t u = 0; u < N; ++u) {
+                for (const auto& v: getAdj(u)) {
+                    if (getColor(u) == getColor(v))
+                        continue;
+                    pathCounts[0][{u, v}][makeSet(k, {getColor(u), getColor(v)})] = 1;
+                }
+            }
+        }
+
+        for (size_t j = 1; j <= pathCounts.size(); ++j) {
+            nodeJoin(node, decompose, true, p, k, L, j, pathCounts);
+            if (j != pathCounts.size())
+                edgeJoin(node, decompose, true, p, k, L, j, pathCounts);
+        }
+
+        const auto& pathCount = pathCounts.back();
+
+        for (const auto& countUV: pathCount) {
+            auto u = countUV.first[0], v = countUV.first[1];
+            auto uv = makeSet(k, {getColor(u), getColor(v)});
+            if (haveEdge(u, v)) {
+                if (node.annotatedEdges[lMinus(p, 1)] != -1) {
+                    decltype(node.count)& countB = const_cast<decltype(node.count)&>(decompose[node.annotatedEdges[lMinus(p, 1)]].count);
+                    for (const auto& countUVC1: countUV.second) {
+                        const auto& c1 = countUVC1.first;
+                        for (const auto& countBUVC2: countB[countUV.first]) {
+                            const auto& c2 = countBUVC2.first;
+                            if ((c1 & c2) == uv) {
+                                node.count[{u}][c1 | c2] += countUVC1.second * countBUVC2.second;
+                            }
+                        }
+                    }
+                }
+                else {
+                    for (const auto& countUVC: countUV.second) {
+                        node.count[{u}][countUVC.first] += countUVC.second;
+                    }
+                }
+            }
+        }
     }
     else {
         // 2 boundary cycle node

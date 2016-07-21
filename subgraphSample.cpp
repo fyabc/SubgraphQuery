@@ -69,3 +69,29 @@ int Graph::sampleSubgraph(const Graph &Q, int sampleTimes) const {
 
     return result;
 }
+
+int Graph::sampleSubgraph_EgonetWithoutEgo(const Graph &Q, std::size_t root, int sampleTimes) const {
+    int result = 0;
+
+    auto n = getAdj(root).size();
+    auto k = Q.size();
+
+    if (n < k)
+        return 0;
+
+    if (all != nullptr)
+        delete[] all;
+    all = new size_t[n];
+    copy(getAdj(root).cbegin(), getAdj(root).cend(), all);
+    shuffle(all, all + n, default_random_engine());
+
+    auto sample = new size_t[n];
+    for (auto i = 0; i < sampleTimes; ++i) {
+        randomSample(n, k, sample);
+        if (contain(sample, Q))
+            ++result;
+    }
+
+    delete[] sample;
+    return result;
+}

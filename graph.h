@@ -104,6 +104,7 @@ public:
     /* ====================================================================== */
 
     static std::unique_ptr<Graph> fromFile(const std::string& fileName);
+    static std::unique_ptr<Graph> fromFileByNamedVertices(const std::string& fileName, const std::string& inputType = "RealDataSet");
     static std::unique_ptr<Graph> fromTypeString(const std::string& typeString);
     static std::unique_ptr<Graph> createStar(std::size_t n);
     static std::unique_ptr<Graph> createCycle(std::size_t n);
@@ -132,6 +133,8 @@ public:
 
     /// Test if G is a star.
     bool isStar(std::size_t root = 0) const;
+    /// Test if G contains a K_4.
+    bool haveK4() const;
 
     /// Show adjacent matrix.
     void showAdj(std::ostream& out = std::cout) const;
@@ -142,6 +145,11 @@ public:
 
     /// Get the connect component which contains vertex start.
     std::unordered_set<std::size_t> getConnectComponent(std::size_t start) const;
+    /// Get all connect components.
+    std::vector<std::unordered_set<std::size_t>> getAllConnectComponents() const;
+
+    /// Get the induced subgraph.
+    std::unique_ptr<Graph> getInducedSubgraph(const std::unordered_set<std::size_t>& inducedVertices) const;
 
 private:
     std::size_t getColor(std::size_t i) const { return vertices[i].color; }
@@ -280,7 +288,20 @@ public:
     /* ====================================================================== */
     /* ========================== Ego Network Query ========================= */
     /* ====================================================================== */
-    Graph extractEgonet(std::size_t ego) const;
+    std::unique_ptr<Graph> extractEgonet(std::size_t ego, double chooseRate = 1.0, bool containEgo = true) const;
+
+    /// Decompose the Egonet.
+    /// [NOTE]: The ego vertex must be 0.
+    bool decomposeEgonet(std::vector<DecomposeTree2Node> &decompose) const;
+
+    mpz_class getSubgraphNumber_Egonet(const Graph& Q, int sampleTimes = 1000) const {
+        using namespace std;
+        vector<DecomposeTree2Node> decompose;
+        decomposeEgonet(decompose);
+        return getSubgraphNumber_2Treewidth_Decompose(Q, decompose, sampleTimes);
+    }
+
+    int sampleSubgraph_EgonetWithoutEgo(const Graph &Q, std::size_t root, int sampleTimes = 1000) const;
 
     /* ====================================================================== */
     /* ======================== Other Special Queries ======================= */

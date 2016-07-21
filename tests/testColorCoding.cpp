@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
 
     string N = "10000";
     string p = "2.5";
-    string QName = "wiki.qd";
+    string QName = "cycle3.qd";
 
     if (argc >= 2)
         N = argv[1];

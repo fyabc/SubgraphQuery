@@ -80,7 +80,7 @@ size_t Graph::maxDegree() const {
 }
 
 unique_ptr<Graph> Graph::fromFile(const string& fileName) {
-    size_t n = 10;
+    size_t n = 0;
     double p = 0.0;
 
     try {
@@ -89,8 +89,6 @@ unique_ptr<Graph> Graph::fromFile(const string& fileName) {
     catch (exception& e) {
         throw runtime_error("Error when parsing file name");
     }
-
-    auto result = unique_ptr<Graph>(new Graph(n));
 
     ifstream inputFile(fileName, ifstream::in);
     if (!inputFile.good()) {
@@ -103,9 +101,93 @@ unique_ptr<Graph> Graph::fromFile(const string& fileName) {
         getline(inputFile, line);
     }
 
+    auto result = unique_ptr<Graph>(new Graph(n));
+
     std::size_t src, dst;
     while (inputFile >> src >> dst) {
         result->addEdge(src, dst);
+    }
+
+    inputFile.close();
+
+    return result;
+}
+
+std::unique_ptr<Graph> Graph::fromFileByNamedVertices(const string &fileName, const string& inputType) {
+    size_t n = 0;
+    size_t rootTemp = 0;
+
+    ifstream inputFile(fileName, ifstream::in);
+    if (!inputFile.good()) {
+        throw runtime_error("Cannot open such file");
+    }
+
+    // All input types:
+    //   RealDataSet
+    //   GeneratedEgonet
+    if (inputType == "RealDataSet") {
+        string line;
+        // read and omit first 4 comment lines.
+        for (auto i = 0; i < 4; ++i) {
+            getline(inputFile, line);
+            if (i == 2) {
+                size_t begin = 9, end = begin;
+                for (; line[end] != ' '; ++end);
+                n = (size_t)atoi(line.substr(begin, end - begin).c_str());
+            }
+        }
+    }
+    else if (inputType == "GeneratedEgonet") {
+        string line;
+
+        // read and omit first 3 comment lines.
+        getline(inputFile, line);
+        auto end = line.size() - 1, begin = end;
+        for (; line[begin] != '\t' && line[begin] != ' '; --begin);
+        rootTemp = (size_t) atoi(line.substr(begin + 1, end - begin).c_str());
+
+        getline(inputFile, line);
+        end = line.size() - 1, begin = end;
+        for (; line[begin] != '\t' && line[begin] != ' '; --begin);
+        n = (size_t)atoi(line.substr(begin + 1, end - begin).c_str());
+
+        getline(inputFile, line);
+    }
+
+
+    auto result = unique_ptr<Graph>(new Graph(n));
+
+    std::size_t src, dst;
+    size_t currentIndex = 0;
+    unordered_map<size_t, size_t> verticesMap;
+
+    if (inputType == "GeneratedEgonet") {
+        currentIndex = 1;
+        verticesMap[rootTemp] = 0;
+    }
+
+    while (inputFile >> src >> dst) {
+        size_t srcMapped, dstMapped;
+
+        auto findSrc = verticesMap.find(src);
+        if (findSrc == verticesMap.end()) {
+            verticesMap[src] = currentIndex;
+            srcMapped = currentIndex;
+            ++currentIndex;
+        }
+        else
+            srcMapped = findSrc->second;
+
+        auto findDst = verticesMap.find(dst);
+        if (findDst == verticesMap.end()) {
+            verticesMap[dst] = currentIndex;
+            dstMapped = currentIndex;
+            ++currentIndex;
+        }
+        else
+            dstMapped = findDst->second;
+
+        result->addEdge(srcMapped, dstMapped);
     }
 
     inputFile.close();
@@ -277,6 +359,31 @@ bool Graph::isStar(size_t root) const {
     return true;
 }
 
+bool Graph::haveK4() const {
+    for (size_t u = 0; u < N; ++u) {
+        if (degree(u) < 3)
+            continue;
+        const auto& adjU = getAdj(u);
+        for (auto v: adjU) {
+            if (v <= u)
+                continue;
+            const auto& adjV = getAdj(v);
+            for (auto w: adjV) {
+                if (w <= v || adjU.find(w) == adjU.end())
+                    continue;
+                const auto& adjW = getAdj(w);
+                for (auto x: adjW) {
+                    if (x <= w || adjU.find(x) == adjU.end() || adjV.find(x) == adjV.end())
+                        continue;
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 void Graph::showAdj(ostream& out) const {
     out << "\t#";
     for (auto i = 0; i < N; ++i)
@@ -341,6 +448,43 @@ unordered_set<size_t> Graph::getConnectComponent(size_t start) const {
     }
 
     delete[] visited;
+    return result;
+}
+
+vector<unordered_set<std::size_t>> Graph::getAllConnectComponents() const {
+    vector<bool> visited(N, false);
+    vector<unordered_set<std::size_t>> result;
+
+    for (size_t i = 0; i < N; ++i) {
+        if (!visited[i]) {
+            result.push_back(getConnectComponent(i));
+            for (auto u: result.back())
+                visited[u] = true;
+        }
+    }
+
+    return result;
+}
+
+std::unique_ptr<Graph> Graph::getInducedSubgraph(const std::unordered_set<std::size_t> &inducedVertices) const {
+    unique_ptr<Graph> result(new Graph(inducedVertices.size()));
+
+    unordered_map<size_t, size_t> verticesMap;
+
+    size_t currentIndex = 0;
+    for (auto u: inducedVertices) {
+        verticesMap[u] = currentIndex++;
+    }
+
+    for (auto u: inducedVertices) {
+        for (auto v: getAdj(u)) {
+            if (u >= v)
+                continue;
+            if (inducedVertices.find(v) != inducedVertices.end())
+                result->addEdge(verticesMap[u], verticesMap[v]);
+        }
+    }
+
     return result;
 }
 
