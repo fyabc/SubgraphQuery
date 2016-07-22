@@ -32,7 +32,7 @@ struct OptionArgs {
     string gFileName;
     string qFileName;
 
-    int threadNum = 1;
+    int threadNum = -1;
     int testTimes = -1;
 
     double epsilon = 0.1;
@@ -162,7 +162,7 @@ int main(int argc, char** argv) {
     }
 
 #else
-    if (optionArgs.threadNum == 1)
+    if (optionArgs.threadNum == -1)
         optionArgs.threadNum = max(1, omp_get_num_procs() - 2);
 	if (optionArgs.showInfo) {
 		cout << "Thread number = " << optionArgs.threadNum << endl;
@@ -191,6 +191,15 @@ int main(int argc, char** argv) {
             else
                 total[i] += localG.getSubgraphNumber_2Treewidth_Decompose(localEgonet, localDecompose, 1);
         }
+        if (pEgonet->isStar())
+            total[i] = localG.getSubgraphNumber_Star(localEgonet);
+        else
+            total[i] += localG.getSubgraphNumber_2Treewidth_Decompose(localEgonet, localDecompose, 1);
+
+		if (optionArgs.showInfo) {
+			cout << total[i] << endl;
+		}
+    }
 
         for (auto i = 0; i < optionArgs.testTimes; ++i)
             sum += total[i];
