@@ -93,7 +93,7 @@ mpz_class Graph::getSubgraphNumber_StarAnd1Edge(const Graph &Q) const {
     auto k = Q.size();
 
     for (size_t i = 0; i < N; ++i) {
-        if (degree(i) <= k)
+        if (degree(i) <= k - 2)
             continue;
 
         size_t adjEdgeNum = 0;
@@ -106,7 +106,7 @@ mpz_class Graph::getSubgraphNumber_StarAnd1Edge(const Graph &Q) const {
             }
         }
 
-        result += permute(degree(i) - 2, k - 3) * adjEdgeNum;
+        result += permute(degree(i) - 2, k - 3) * 2 * adjEdgeNum;
     }
 
     return result;
