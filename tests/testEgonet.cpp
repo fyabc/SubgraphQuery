@@ -162,29 +162,39 @@ int main(int argc, char** argv) {
 #else
     if (optionArgs.threadNum == 1)
         optionArgs.threadNum = max(1, omp_get_num_procs() - 2);
+	if (optionArgs.showInfo) {
+		cout << "Thread number = " << optionArgs.threadNum << endl;
+	}
+
     omp_set_num_threads(optionArgs.threadNum);
 
     auto timeBefore = clock();
 
-    mpz_class total(0);
-#pragma omp parallel for reduction(+:total)
-    for (int i = 1; i < optionArgs.testTimes; ++i) {
+	mpz_class* total = new mpz_class[optionArgs.testTimes];
+#pragma omp parallel for default(shared)
+    for (int i = 0; i < optionArgs.testTimes; ++i) {
         auto localEgonet = *pEgonet;
         auto localDecompose = decompose;
         auto localG = *pG;
 
         if (pEgonet->isStar())
-            total += localG.getSubgraphNumber_Star(localEgonet);
+            total[i] = localG.getSubgraphNumber_Star(localEgonet);
         else
-            total += localG.getSubgraphNumber_2Treewidth_Decompose(localEgonet, localDecompose, 1);
+            total[i] += localG.getSubgraphNumber_2Treewidth_Decompose(localEgonet, localDecompose, 1);
     }
 
     auto timeAfter = clock();
 
-    cout << total / optionArgs.testTimes << endl;
-    if (optionArgs.showInfo) {
+	mpz_class sum(0);
+	for (auto i = 0; i < optionArgs.testTimes; ++i)
+		sum += total[i];
+    cout << sum / optionArgs.testTimes << endl;
+    
+	if (optionArgs.showInfo) {
         cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
     }
+
+	delete[] total;
 #endif
     return 0;
 }
