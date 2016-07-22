@@ -149,6 +149,8 @@ int main(int argc, char** argv) {
     auto timeBefore = clock();
     if (pEgonet->isStar())
         result = pG->getSubgraphNumber_Star(*pEgonet);
+    else if (pEgonet->edgeNum() == pEgonet->size())
+        result = pG->getSubgraphNumber_StarAnd1Edge(*pEgonet);
     else
         result = pG->getSubgraphNumber_2Treewidth_Decompose(*pEgonet, decompose, optionArgs.testTimes);
     auto timeAfter = clock();
@@ -167,34 +169,45 @@ int main(int argc, char** argv) {
 	}
 
     omp_set_num_threads(optionArgs.threadNum);
+    mpz_class sum(0);
 
     auto timeBefore = clock();
 
-	mpz_class* total = new mpz_class[optionArgs.testTimes];
-#pragma omp parallel for default(shared)
-    for (int i = 0; i < optionArgs.testTimes; ++i) {
-        auto localEgonet = *pEgonet;
-        auto localDecompose = decompose;
-        auto localG = *pG;
+    if (pEgonet->isStar())
+        sum = pEgonet->getSubgraphNumber_Star(*pEgonet);
+    else if (pEgonet->edgeNum() == pEgonet->size())
+        sum = pEgonet->getSubgraphNumber_StarAnd1Edge(*pEgonet);
+    else {
+        mpz_class* total = new mpz_class[optionArgs.testTimes];
 
-        if (pEgonet->isStar())
-            total[i] = localG.getSubgraphNumber_Star(localEgonet);
-        else
-            total[i] += localG.getSubgraphNumber_2Treewidth_Decompose(localEgonet, localDecompose, 1);
+#pragma omp parallel for default(shared)
+        for (int i = 0; i < optionArgs.testTimes; ++i) {
+            auto localEgonet = *pEgonet;
+            auto localDecompose = decompose;
+            auto localG = *pG;
+
+            if (pEgonet->isStar())
+                total[i] = localG.getSubgraphNumber_Star(localEgonet);
+            else
+                total[i] += localG.getSubgraphNumber_2Treewidth_Decompose(localEgonet, localDecompose, 1);
+        }
+
+        for (auto i = 0; i < optionArgs.testTimes; ++i)
+            sum += total[i];
+
+        sum /= optionArgs.testTimes;
+
+        delete[] total;
     }
 
     auto timeAfter = clock();
 
-	mpz_class sum(0);
-	for (auto i = 0; i < optionArgs.testTimes; ++i)
-		sum += total[i];
-    cout << sum / optionArgs.testTimes << endl;
+    cout << sum << endl;
     
 	if (optionArgs.showInfo) {
         cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
     }
-
-	delete[] total;
 #endif
+
     return 0;
 }

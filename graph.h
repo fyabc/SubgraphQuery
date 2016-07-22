@@ -183,6 +183,9 @@ public:
     mpz_class getSubgraphNumber_Star_All(std::size_t k, std::size_t constraintRoot, bool rootHard,
                                          std::size_t constraintLeaf, bool leafHard) const;
 
+    /// Star and 1 additional edge query.
+    mpz_class getSubgraphNumber_StarAnd1Edge(const Graph& Q) const;
+
     /* ====================================================================== */
     /* ============================ Color Coding ============================ */
     /* ====================================================================== */

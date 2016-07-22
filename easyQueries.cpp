@@ -17,9 +17,8 @@ mpz_class Graph::getSubgraphNumber_Star(const Graph &Q) const {
     auto k = Q.size();
 
     for (size_t i = 0; i < N; ++i) {
-        const auto& vertexI = vertices[i];
-        if (vertexI.degree >= k - 1) {
-            result += permute(vertexI.degree, k - 1);
+        if (degree(i) >= k - 1) {
+            result += permute(degree(i), k - 1);
         }
     }
 
@@ -32,13 +31,12 @@ mpz_class Graph::getSubgraphNumber_Star_DegreesHard(const Graph &Q, std::size_t 
     auto k = Q.size();
 
     for (size_t i = 0; i < N; ++i) {
-        const auto& vertexI = vertices[i];
         size_t candidateNum = 0;
 
         size_t c1 = 0, c2 = 0;
 
-        if (vertexI.degree >= k - 1 && (constraintRoot == 0 || vertexI.degree == constraintRoot)) {
-            for (const auto &v: vertexI.adj) {
+        if (degree(i) >= k - 1 && (constraintRoot == 0 || degree(i) == constraintRoot)) {
+            for (const auto &v: getAdj(i)) {
                 if (degree(v) == constraint)
                     ++candidateNum;
             }
@@ -55,10 +53,9 @@ mpz_class Graph::getSubgraphNumber_Star_DegreesSoft(const Graph& Q, std::size_t 
     auto k = Q.size();
 
     for (size_t i = 0; i < N; ++i) {
-        const auto& vertexI = vertices[i];
         size_t candidateNum = 0;
-        if (vertexI.degree >= k - 1 && (constraintRoot == 0 || vertexI.degree >= constraintRoot)) {
-            for (const auto &v: vertexI.adj) {
+        if (degree(i) >= k - 1 && (constraintRoot == 0 || degree(i) >= constraintRoot)) {
+            for (const auto &v: getAdj(i)) {
                 if (degree(v) >= constraint)
                     ++candidateNum;
             }
@@ -77,15 +74,39 @@ mpz_class Graph::getSubgraphNumber_Star_All(std::size_t k, std::size_t constrain
     auto leafPred = [constraintLeaf, leafHard] (size_t deg) { return leafHard ? deg == constraintLeaf : deg >= constraintLeaf; };
 
     for (size_t i = 0; i < N; ++i) {
-        const auto& vertexI = vertices[i];
         size_t candidateNum = 0;
-        if (vertexI.degree >= k - 1 && rootPred(vertexI.degree)) {
-            for (const auto &v: vertexI.adj) {
+        if (degree(i) >= k - 1 && rootPred(degree(i))) {
+            for (const auto &v: getAdj(i)) {
                 if (leafPred(degree(v)))
                     ++candidateNum;
             }
             result += permute(candidateNum, k - 1);
         }
+    }
+
+    return result;
+}
+
+mpz_class Graph::getSubgraphNumber_StarAnd1Edge(const Graph &Q) const {
+    mpz_class result(0);
+
+    auto k = Q.size();
+
+    for (size_t i = 0; i < N; ++i) {
+        if (degree(i) <= k)
+            continue;
+
+        size_t adjEdgeNum = 0;
+        for (auto u: getAdj(i)) {
+            for (auto v: getAdj(u)) {
+                if (u >= v)
+                    continue;
+                if (getAdj(i).find(v) != getAdj(i).end())
+                    ++adjEdgeNum;
+            }
+        }
+
+        result += permute(degree(i) - 2, k - 3) * adjEdgeNum;
     }
 
     return result;
