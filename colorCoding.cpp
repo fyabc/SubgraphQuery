@@ -283,6 +283,11 @@ mpz_class Graph::getSubgraphNumber_2Treewidth_Decompose(const Graph& Q, vector<D
             // parse the node (leaf, 1-boundary cycle or 2-boundary cycle).
 //            calculateNode_PS_raw(Q, node, decompose);
             calculateNode_PS(Q, node, decompose);
+
+			// clear the counts of children to release the space.
+			for (auto child: node.children) {
+				decompose[child].count.clear();
+			}
         }
 
         for (const auto& countV: decompose[0].count) {
