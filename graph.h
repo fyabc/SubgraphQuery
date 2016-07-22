@@ -300,7 +300,12 @@ public:
     mpz_class getSubgraphNumber_Egonet(const Graph& Q, int sampleTimes = 1000) const {
         using namespace std;
         vector<DecomposeTree2Node> decompose;
-        decomposeEgonet(decompose);
+        auto haveDecomposition = decomposeEgonet(decompose);
+        if (!haveDecomposition) {
+            cout << "Treewidth > 2, do not have decomposition!" << endl;
+            return mpz_class(0);
+        }
+
         return getSubgraphNumber_2Treewidth_Decompose(Q, decompose, sampleTimes);
     }
 
