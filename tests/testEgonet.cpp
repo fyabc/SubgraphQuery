@@ -186,20 +186,8 @@ int main(int argc, char** argv) {
             auto localDecompose = decompose;
             auto localG = *pG;
 
-            if (pEgonet->isStar())
-                total[i] = localG.getSubgraphNumber_Star(localEgonet);
-            else
-                total[i] += localG.getSubgraphNumber_2Treewidth_Decompose(localEgonet, localDecompose, 1);
-        }
-        if (pEgonet->isStar())
-            total[i] = localG.getSubgraphNumber_Star(localEgonet);
-        else
             total[i] += localG.getSubgraphNumber_2Treewidth_Decompose(localEgonet, localDecompose, 1);
-
-		if (optionArgs.showInfo) {
-			cout << total[i] << endl;
-		}
-    }
+        }
 
         for (auto i = 0; i < optionArgs.testTimes; ++i)
             sum += total[i];
