@@ -19,6 +19,7 @@
             test2dFullTree.cpp  --- 深度为2的满的树的查询
             testColorCoding.cpp --- 使用用Color Coding算法的查询
             testStar.cpp        --- 对星形子图的测试
+            testEgonet.cpp      --- 对Egonet的测试
 
         /decompositions     --- 一些查询图的分解
             *.qd 格式:

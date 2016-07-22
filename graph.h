@@ -42,6 +42,9 @@ class Graph {
             if (adj.erase(dst) != 0)
                 --degree;
         }
+
+        std::size_t getColor() const { return color; }
+        void setColor(std::size_t newColor) const { color = newColor; }
     };
 
     /// A decompose tree node, is a subtree of the origin graph.
@@ -152,7 +155,7 @@ public:
     std::unique_ptr<Graph> getInducedSubgraph(const std::unordered_set<std::size_t>& inducedVertices) const;
 
 private:
-    std::size_t getColor(std::size_t i) const { return vertices[i].color; }
+    std::size_t getColor(std::size_t i) const { return vertices[i].getColor(); }
 
     /* ====================================================================== */
     /* =========================== Simple Sampling ========================== */

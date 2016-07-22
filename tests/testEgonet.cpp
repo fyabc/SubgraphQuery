@@ -6,40 +6,132 @@
 #include "../utils.h"
 
 #include <ctime>
+#include <getopt.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 using namespace std;
+
+int getTestTime(size_t k, double epsilon, double delta) {
+    double result = 1.0;
+
+    for (size_t i = 1; i <= k; ++i) {
+        result *= k;
+        result /= i;
+    }
+
+    result /= epsilon * epsilon * delta;
+
+    return int(result);
+}
+
+struct OptionArgs {
+    bool help = false;
+    bool showInfo = false;
+    string gFileName;
+    string qFileName;
+
+    int threadNum = 1;
+    int testTimes = -1;
+
+    double epsilon = 0.1;
+    double delta = 0.1;
+};
+
+void parseOpt(int argc, char* argv[], OptionArgs* optionArgs) {
+    const char optString[] = "g:q:e:d:t:p:hi";
+
+    int opt;
+
+    while ((opt = getopt(argc, argv, optString)) != -1) {
+        switch (opt) {
+            case 'g':
+                optionArgs->gFileName = optarg;
+                break;
+            case 'q':
+                optionArgs->qFileName = optarg;
+                break;
+            case 'e':
+                optionArgs->epsilon = atof(optarg);
+                break;
+            case 'd':
+                optionArgs->delta = atof(optarg);
+                break;
+            case 'h':
+                optionArgs->help = true;
+                break;
+            case 't':
+                optionArgs->testTimes = atoi(optarg);
+                break;
+            case 'p':
+                optionArgs->threadNum = atoi(optarg);
+            case 'i':
+                optionArgs->showInfo = true;
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void usage() {
+    printf(
+        "Usage\n"
+        "testEgonet -g gFile -q qFile [-e epsilon] [-d delta] [-t testTimes] [-p threadNum] [-i] [-h]\n"
+        "\n"
+        "Do an Ego Network query.\n"
+        "\n"
+        "Options:\n"
+        "    -g gFile        the file name of graph G\n"
+        "    -q qFile        the file name of graph Q\n"
+        "    -e epsilon      the value of epsilon (default is 0.1)\n"
+        "    -d delta        the value of delta (default is 0.1)\n"
+        "    -t testTimes    the number of test times (override -e and -d)\n"
+        "    -p threadNum    the number of thread in parallel sampling (warning: more threads will cost more space)\n"
+        "    -i              show query details\n"
+        "    -h              print this help and exit\n"
+        "\n"
+    );
+
+    exit(0);
+}
 
 int main(int argc, char** argv) {
     srand((unsigned int)time(nullptr));
 
-    auto path = getDataPath();
+    OptionArgs optionArgs;
+    parseOpt(argc, argv, &optionArgs);
 
-    string fileName = "Arxiv-CondMat.txt";
-    string egonetFileName = "Q2.txt";
-    int testTimes = 10;
-
-    if (argc >= 2) {
-        fileName = argv[1];
-    }
-    if (argc >= 3) {
-        egonetFileName = argv[2];
-    }
-    if (argc >= 4) {
-        testTimes = atoi(argv[3]);
+    if (optionArgs.help) {
+        usage();
     }
 
+    if (optionArgs.gFileName == "") {
+        cerr << "Error: G file name must be given" << endl;
+        return 0;
+    }
+    if (optionArgs.qFileName == "") {
+        cerr << "Error: Q file name must be given" << endl;
+        return 0;
+    }
+    auto pG = Graph::fromFileByNamedVertices(optionArgs.gFileName, "RealDataSet");
+    auto pEgonet = Graph::fromFileByNamedVertices(optionArgs.qFileName, "GeneratedEgonet");
 
-    auto pG = Graph::fromFileByNamedVertices(path + "/data/" + fileName);
+    if (optionArgs.showInfo) {
+        pG->showGraphInfo();
+        pEgonet->showGraphInfo();
+    }
 
-    pG->showGraphInfo();
+    if (optionArgs.testTimes == -1) {
+        optionArgs.testTimes = getTestTime(pEgonet->size(), optionArgs.epsilon, optionArgs.delta);
+    }
 
-    auto pEgonet = Graph::fromFileByNamedVertices(path + "/data/" + egonetFileName, "GeneratedEgonet");
-
-    pEgonet->showGraphInfo();
-//    pEgonet->showAdj();
+    if(optionArgs.showInfo) {
+        cout << "Test times = " << optionArgs.testTimes << endl;
+    }
 
     vector<Graph::DecomposeTree2Node> decompose;
-
     auto haveDecompose = pEgonet->decomposeEgonet(decompose);
 
     if (!haveDecompose) {
@@ -47,19 +139,52 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    for (int i = 1; i <= testTimes; ++i) {
-        mpz_class result(0);
+#ifndef _OPENMP
+    if (optionArgs.threadNum > 1) {
+        cerr << "The environment does not support OpenMP, thread number is omitted" << endl;
+    }
 
-        auto timeBefore = clock();
-        if (pEgonet->isStar())
-            result = pG->getSubgraphNumber_Star(*pEgonet);
-        else
-            result = pG->getSubgraphNumber_2Treewidth_Decompose(*pEgonet, decompose, 1);
-        auto timeAfter = clock();
+    mpz_class result(0);
 
-        cout << "[Color Coding] " << result << " " << result.get_str(10).size() << endl;
+    auto timeBefore = clock();
+    if (pEgonet->isStar())
+        result = pG->getSubgraphNumber_Star(*pEgonet);
+    else
+        result = pG->getSubgraphNumber_2Treewidth_Decompose(*pEgonet, decompose, optionArgs.testTimes);
+    auto timeAfter = clock();
+
+    cout << result << endl;
+
+    if (optionArgs.showInfo) {
         cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
     }
 
+#else
+    if (optionArgs.threadNum == 1)
+        optionArgs.threadNum = max(1, omp_get_num_procs() - 2);
+    omp_set_num_threads(optionArgs.threadNum);
+
+    auto timeBefore = clock();
+
+    mpz_class total(0);
+#pragma omp parallel for reduction(+:total)
+    for (int i = 1; i < optionArgs.testTimes; ++i) {
+        auto localEgonet = *pEgonet;
+        auto localDecompose = decompose;
+        auto localG = *pG;
+
+        if (pEgonet->isStar())
+            total += localG.getSubgraphNumber_Star(localEgonet);
+        else
+            total += localG.getSubgraphNumber_2Treewidth_Decompose(localEgonet, localDecompose, 1);
+    }
+
+    auto timeAfter = clock();
+
+    cout << total / optionArgs.testTimes << endl;
+    if (optionArgs.showInfo) {
+        cout << "Time: " << double(timeAfter - timeBefore) / CLOCKS_PER_SEC << "s" << endl;
+    }
+#endif
     return 0;
 }

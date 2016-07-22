@@ -99,7 +99,7 @@ inline ostream& operator<< (ostream& out, const unordered_set<size_t>& s) {
 
 void Graph::randomColor(std::size_t qSize) const {
     for (auto& elem : vertices) {
-        elem.color = (size_t)rand() % qSize;
+        elem.setColor((size_t)rand() % qSize);
     }
 }
 
@@ -114,7 +114,7 @@ mpz_class Graph::getSubgraphNumber_BF(const Graph& Q, int sampleTimes) const {
             elem.clear();
 
         for (size_t j = 0; j < N; ++j)
-            colorVertices[vertices[j].color].insert(j);
+            colorVertices[getColor(j)].insert(j);
 
         testPermutations(Q, ver, colorVertices, 0, result);
     }
