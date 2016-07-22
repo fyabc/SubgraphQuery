@@ -66,6 +66,7 @@ void parseOpt(int argc, char* argv[], OptionArgs* optionArgs) {
                 break;
             case 'p':
                 optionArgs->threadNum = atoi(optarg);
+				break;
             case 'i':
                 optionArgs->showInfo = true;
                 break;
@@ -174,9 +175,9 @@ int main(int argc, char** argv) {
     auto timeBefore = clock();
 
     if (pEgonet->isStar())
-        sum = pEgonet->getSubgraphNumber_Star(*pEgonet);
+        sum = pG->getSubgraphNumber_Star(*pEgonet);
     else if (pEgonet->edgeNum() == pEgonet->size())
-        sum = pEgonet->getSubgraphNumber_StarAnd1Edge(*pEgonet);
+        sum = pG->getSubgraphNumber_StarAnd1Edge(*pEgonet);
     else {
         mpz_class* total = new mpz_class[optionArgs.testTimes];
 
