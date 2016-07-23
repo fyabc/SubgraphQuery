@@ -125,7 +125,8 @@ int main(int argc, char** argv) {
     }
 
     if (optionArgs.testTimes == -1) {
-        optionArgs.testTimes = getTestTime(pEgonet->size(), optionArgs.epsilon, optionArgs.delta);
+//        optionArgs.testTimes = getTestTime(pEgonet->size(), optionArgs.epsilon, optionArgs.delta);
+        optionArgs.testTimes = 1000;
     }
 
     if(optionArgs.showInfo) {
