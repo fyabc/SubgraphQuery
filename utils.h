@@ -61,21 +61,28 @@ struct PairHash {
 
 inline mpz_class permute(std::size_t n, std::size_t k) {
     using namespace std;
+
+	const size_t nThreshold = 400, kThreshold = 400;
+
     static unordered_map<pair<size_t, size_t>, mpz_class, PairHash> calculated;
 
     if (n < k)
         return mpz_class(0);
 
-    auto pResult = calculated.find(pair<size_t, size_t>(n, k));
-    if (pResult != calculated.end())
-        return pResult->second;
+	if (n <= nThreshold && k <= kThreshold) {
+        auto pResult = calculated.find(pair<size_t, size_t>(n, k));
+        if (pResult != calculated.end())
+            return pResult->second;
+    }
 
     mpz_class result(1);
 
     for (size_t i = 0; i < k; ++i)
         result *= n - i;
 
-    calculated[pair<size_t, size_t>(n, k)] = result;
+	if (n <= nThreshold && k <= kThreshold) {
+        calculated[pair<size_t, size_t>(n, k)] = result;
+    }
 
     return result;
 }

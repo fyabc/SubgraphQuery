@@ -11,10 +11,12 @@ namespace {
 
 } // anonymous namespace
 
-mpz_class Graph::getSubgraphNumber_Star(const Graph &Q) const {
-    mpz_class result(0);
+mpz_class Graph::getSubgraphNumber_Star(const Graph& Q) const {
+    return getSubgraphNumber_Star(Q.size());
+}
 
-    auto k = Q.size();
+mpz_class Graph::getSubgraphNumber_Star(size_t k) const {
+    mpz_class result(0);
 
     for (size_t i = 0; i < N; ++i) {
         if (degree(i) >= k - 1) {

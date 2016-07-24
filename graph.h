@@ -175,6 +175,7 @@ public:
 
     /// Star query.
     mpz_class getSubgraphNumber_Star(const Graph& Q) const;
+    mpz_class getSubgraphNumber_Star(std::size_t k) const;
 
     /// Star query with degree constraints.
     /// If constraintRoot == 0, it means no constraint of root.
