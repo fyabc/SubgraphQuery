@@ -77,8 +77,9 @@ int main(int argc, char** argv) {
         ofstream outFile((path + "/result/real.txt").c_str());
 
         cout << "Will up to " << maxD << endl;
+		cout << "MinN = " << minN << endl;
 
-        for (size_t i = 1; i < minN; ++i) {
+        for (size_t i = 1; i < maxD + 10; ++i) {
             if (i - 1 > maxD + 2)
                 break;
 
