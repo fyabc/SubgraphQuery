@@ -292,6 +292,7 @@ public:
     /// 2-depth full tree query sampling.
     double testSubgraph_2dTree(std::size_t b1, std::size_t b2, int sampleTimes = 1) const;
 
+
     /* ====================================================================== */
     /* ========================== Ego Network Query ========================= */
     /* ====================================================================== */
@@ -315,10 +316,19 @@ public:
 
     int sampleSubgraph_EgonetWithoutEgo(const Graph &Q, std::size_t root, int sampleTimes = 1000) const;
 
+
     /* ====================================================================== */
     /* ======================== Other Special Queries ======================= */
     /* ====================================================================== */
     mpz_class getSubgraphNumber_Triangle() const;
+
+
+    /* ====================================================================== */
+    /* ======================= Match Community Queries ====================== */
+    /* ====================================================================== */
+    /// Star queries.
+    mpz_class getMC_Star(const Graph& Q) const;
+    mpz_class getMC_Star(std::size_t k) const;
 };
 
 #endif //SUBGRAPHQUERY_QUERY_H
