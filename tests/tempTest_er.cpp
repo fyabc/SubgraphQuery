@@ -38,8 +38,8 @@ int main(int argc, char** argv) {
             auto result3 = pG3->getSubgraphNumber_Star(i).get_str(10);
 
             outFile << result1.substr(0, 3) << " " << result1.size() << " ";
-            outFile << result2.substr(0, 3) << " " << result1.size() << " ";
-            outFile << result3.substr(0, 3) << " " << result1.size() << " ";
+            outFile << result2.substr(0, 3) << " " << result2.size() << " ";
+            outFile << result3.substr(0, 3) << " " << result3.size() << " ";
 
             outFile << endl;
         }
