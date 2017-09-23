@@ -36,3 +36,7 @@ build/
 
 # Path config
 config.txt
+
+# CLion build files
+cmake-build-*
+
