@@ -1,0 +1,3 @@
+"D:\CLion 2017.1.2\bin\cmake\bin\cmake.exe" -E remove -f CMakeFiles\testGraph.dir/objects.a
+D:\Dev-Cpp\MinGW64\bin\ar.exe cr CMakeFiles\testGraph.dir/objects.a @CMakeFiles\testGraph.dir\objects1.rsp
+D:\Dev-Cpp\MinGW64\bin\g++.exe   -std=c++11 -O3 -D__NO_INLINE__ -g   -Wl,--whole-archive CMakeFiles\testGraph.dir/objects.a -Wl,--no-whole-archive  -o testGraph.exe -Wl,--out-implib,libtestGraph.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\testGraph.dir\linklibs.rsp

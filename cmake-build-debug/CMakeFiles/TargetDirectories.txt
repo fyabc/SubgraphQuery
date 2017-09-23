@@ -1,0 +1,16 @@
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/CMakeFiles/testGraph.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/CMakeFiles/graph.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/CMakeFiles/query.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/tests/CMakeFiles/testEgonet.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/tests/CMakeFiles/testColorCoding_SpecialQ.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/tests/CMakeFiles/testStar.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/tests/CMakeFiles/test2dFullTree.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/tests/CMakeFiles/tempTest2.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/tests/CMakeFiles/tempTest_er.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/tests/CMakeFiles/subgraphGen.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/tests/CMakeFiles/tempTest.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/tests/CMakeFiles/testColorCoding.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/tests/CMakeFiles/edit_cache.dir
+C:/Users/DELL/CLionProjects/SubgraphQuery/cmake-build-debug/tests/CMakeFiles/rebuild_cache.dir
