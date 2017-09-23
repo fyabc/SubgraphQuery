@@ -1,3 +1,0 @@
-"D:\CLion 2017.1.2\bin\cmake\bin\cmake.exe" -E remove -f CMakeFiles\query.dir/objects.a
-D:\Dev-Cpp\MinGW64\bin\ar.exe cr CMakeFiles\query.dir/objects.a @CMakeFiles\query.dir\objects1.rsp
-D:\Dev-Cpp\MinGW64\bin\g++.exe   -std=c++11 -O3 -D__NO_INLINE__ -g   -Wl,--whole-archive CMakeFiles\query.dir/objects.a -Wl,--no-whole-archive  -o query.exe -Wl,--out-implib,libquery.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\query.dir\linklibs.rsp

@@ -1,3 +1,0 @@
-"D:\CLion 2017.1.2\bin\cmake\bin\cmake.exe" -E remove -f CMakeFiles\tempTest2.dir/objects.a
-D:\Dev-Cpp\MinGW64\bin\ar.exe cr CMakeFiles\tempTest2.dir/objects.a @CMakeFiles\tempTest2.dir\objects1.rsp
-D:\Dev-Cpp\MinGW64\bin\g++.exe   -std=c++11 -O3 -D__NO_INLINE__ -g   -Wl,--whole-archive CMakeFiles\tempTest2.dir/objects.a -Wl,--no-whole-archive  -o tempTest2.exe -Wl,--out-implib,libtempTest2.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\tempTest2.dir\linklibs.rsp

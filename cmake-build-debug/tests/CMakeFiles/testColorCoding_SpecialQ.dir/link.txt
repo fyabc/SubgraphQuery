@@ -1,3 +1,0 @@
-"D:\CLion 2017.1.2\bin\cmake\bin\cmake.exe" -E remove -f CMakeFiles\testColorCoding_SpecialQ.dir/objects.a
-D:\Dev-Cpp\MinGW64\bin\ar.exe cr CMakeFiles\testColorCoding_SpecialQ.dir/objects.a @CMakeFiles\testColorCoding_SpecialQ.dir\objects1.rsp
-D:\Dev-Cpp\MinGW64\bin\g++.exe   -std=c++11 -O3 -D__NO_INLINE__ -g   -Wl,--whole-archive CMakeFiles\testColorCoding_SpecialQ.dir/objects.a -Wl,--no-whole-archive  -o testColorCoding_SpecialQ.exe -Wl,--out-implib,libtestColorCoding_SpecialQ.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\testColorCoding_SpecialQ.dir\linklibs.rsp

@@ -10,7 +10,6 @@ import sys
 import os
 import math
 import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
 
 
 Attributes = {
@@ -20,7 +19,7 @@ Attributes = {
         r'G($n = 1000000, p$)',                                         # Title of G
         0, 400, None, None,                                             # x & y limits
     ],
-    'power_law': [
+    'pl': [
         'star_1000000_2.159.txt',
         [r'$\beta = 2.1$', r'$\beta = 2.5$', r'$\beta = 2.9$', ],
         r'Power_law($n = 1000000, \beta$)',
@@ -40,15 +39,15 @@ Attributes = {
     ],
 }
 
-LineStyles = ['-', '--', '-.', ':', '-']
+LineStyles = ['-', '--', '-.', '.', '-']
 
 
 DefaultDataDir = 'G:/Data/SubgraphQuery/result'
 
 LoadMax = 1500
 
-LineWidths = [1.0, 2.0, 2.0, 2.0, 2.0]
-FontSize = 16.5
+LineWidth = 7.0
+FontSize = 25
 
 
 # Numbers.
@@ -100,35 +99,25 @@ def plot_data(name, data_dir):
 
         line_cal = [math.log10(i + 1) - l - math.log10(n) if l is not None else None for l in line]
 
-        plt.plot(xs, line_cal, LineStyles[i], label=attribute[1][i], linewidth=LineWidths[i])
+        plt.plot(xs, line_cal, LineStyles[i], label=attribute[1][i], linewidth=LineWidth)
 
-    plt.legend(fontsize=FontSize, loc='lower left', prop=fm.FontProperties('Times New Roman'))
+    plt.legend(fontsize=40, loc='lower left')
 
     plt.xlim(xmax=xmax, xmin=xmin)
     plt.ylim(ymax=ymax, ymin=ymin)
 
-    plt.xlabel(r'Query size $n_Q$', fontsize=FontSize - 1, fontname='Times New Roman')
-    plt.ylabel(r'$\log_{10}{DAG}$', fontsize=FontSize, fontname='Times New Roman')
-
-    plt.gca().xaxis.set_label_coords(0.50, -0.05)
+    plt.xlabel(r'Query size $n_Q$', fontsize=30)
+    plt.ylabel(r'$\log_{10}{DAG}$', fontsize=30)
 
     plt.title(
         r'$G$: {} $Q$: Star($n_Q$)'.format(title_g),
         fontdict={
             'fontname': 'Times New Roman',
-            'fontsize': FontSize,
+            'fontsize': 30,
         },
-        y=1.01,
     )
 
-    plt.gcf().set_size_inches(5.9, 3.9283)
-
-    # plt.show()
-
-    plt.savefig(os.path.join(data_dir, '{}.png'.format(name)), bbox_inches='tight', pad_inches=0.05)
-    plt.savefig(os.path.join(data_dir, '{}.pdf'.format(name)), bbox_inches='tight', pad_inches=0.05)
-
-    plt.clf()
+    plt.show()
 
 
 def main():
@@ -143,7 +132,7 @@ def main():
 
     # Some settings
     # plt.rcParams['font.sans-serif'] = ['Times New Roman']
-    plt.rcParams['font.size'] = 11.5
+    plt.rcParams['font.size'] = FontSize
 
     plot_data(name, data_dir)
 
